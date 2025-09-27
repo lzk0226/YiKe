@@ -44,8 +44,6 @@ public interface NoteMapper {
                                             @Param("subjectId") Long subjectId,
                                             @Param("noteTypeId") Long noteTypeId);
 
-
-
     /**
      * 根据ID查询笔记详情（完整版本）
      * 包含所有字段和关联信息
@@ -58,6 +56,9 @@ public interface NoteMapper {
     @Update("UPDATE notes SET views = views + 1 WHERE id = #{id}")
     void incrementViews(Long id);
 
+    /**
+     * 根据条件查询笔记总数（修复：支持筛选条件）
+     */
     int selectNoteTotal(@Param("subjectId") Long subjectId,
                         @Param("noteTypeId") Long noteTypeId);
 }

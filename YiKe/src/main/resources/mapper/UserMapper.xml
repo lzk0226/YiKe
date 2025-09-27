@@ -14,31 +14,25 @@
         <result property="avatar" column="avatar"/>
         <result property="school" column="school"/>
         <result property="major" column="major"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-        <result property="status" column="status"/>
     </resultMap>
 
     <!-- 根据邮箱查询用户（登录用） -->
     <select id="selectByEmail" parameterType="String" resultMap="UserResultMap">
-        SELECT id, username, email, password, nickname, avatar, school, major,
-               created_at, updated_at, status
+        SELECT id, username, email, password, nickname, avatar, school, major
         FROM users
         WHERE email = #{email} AND status = 1
     </select>
 
     <!-- 根据用户名查询用户 -->
     <select id="selectByUsername" parameterType="String" resultMap="UserResultMap">
-        SELECT id, username, email, password, nickname, avatar, school, major,
-               created_at, updated_at, status
+        SELECT id, username, email, password, nickname, avatar, school, major
         FROM users
         WHERE username = #{username} AND status = 1
     </select>
 
     <!-- 根据ID查询用户信息 -->
     <select id="selectById" parameterType="Long" resultMap="UserResultMap">
-        SELECT id, username, email, nickname, avatar, school, major,
-               created_at, updated_at, status
+        SELECT id, username, email, nickname, avatar, school, major
         FROM users
         WHERE id = #{id} AND status = 1
     </select>
