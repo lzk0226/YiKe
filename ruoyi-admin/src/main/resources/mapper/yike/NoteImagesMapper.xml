@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.yike.mapper.NoteImagesMapper">
+    
+    <resultMap type="NoteImages" id="NoteImagesResult">
+        <result property="id"    column="id"    />
+        <result property="noteId"    column="note_id"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="imageOrder"    column="image_order"    />
+        <result property="createdAt"    column="created_at"    />
+    </resultMap>
+
+    <sql id="selectNoteImagesVo">
+        select id, note_id, image_url, image_order, created_at from note_images
+    </sql>
+
+    <select id="selectNoteImagesList" parameterType="NoteImages" resultMap="NoteImagesResult">
+        <include refid="selectNoteImagesVo"/>
+        <where>  
+            <if test="noteId != null "> and note_id = #{noteId}</if>
+            <if test="imageUrl != null  and imageUrl != ''"> and image_url = #{imageUrl}</if>
+            <if test="imageOrder != null "> and image_order = #{imageOrder}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectNoteImagesById" parameterType="Long" resultMap="NoteImagesResult">
+        <include refid="selectNoteImagesVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertNoteImages" parameterType="NoteImages" useGeneratedKeys="true" keyProperty="id">
+        insert into note_images
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="noteId != null">note_id,</if>
+            <if test="imageUrl != null and imageUrl != ''">image_url,</if>
+            <if test="imageOrder != null">image_order,</if>
+            <if test="createdAt != null">created_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="noteId != null">#{noteId},</if>
+            <if test="imageUrl != null and imageUrl != ''">#{imageUrl},</if>
+            <if test="imageOrder != null">#{imageOrder},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateNoteImages" parameterType="NoteImages">
+        update note_images
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="noteId != null">note_id = #{noteId},</if>
+            <if test="imageUrl != null and imageUrl != ''">image_url = #{imageUrl},</if>
+            <if test="imageOrder != null">image_order = #{imageOrder},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteNoteImagesById" parameterType="Long">
+        delete from note_images where id = #{id}
+    </delete>
+
+    <delete id="deleteNoteImagesByIds" parameterType="String">
+        delete from note_images where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

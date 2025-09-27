@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ruoyi.yike.mapper.NoteTypeMapper">
+
+    <resultMap id="NoteTypeResult" type="com.ruoyi.yike.domain.NoteType">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <sql id="selectNoteType">
+        SELECT id, code, name, description FROM note_types
+    </sql>
+
+    <select id="selectNoteTypeList" parameterType="com.ruoyi.yike.domain.NoteType" resultMap="NoteTypeResult">
+        <include refid="selectNoteType"/>
+        <where>
+            <if test="code != null and code != ''"> AND code = #{code}</if>
+            <if test="name != null and name != ''"> AND name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="description != null and description != ''"> AND description LIKE CONCAT('%', #{description}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectNoteTypeById" parameterType="Long" resultMap="NoteTypeResult">
+        <include refid="selectNoteType"/>
+        WHERE id = #{id}
+    </select>
+
+</mapper>

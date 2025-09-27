@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ruoyi.yike.mapper.UserMapper">
+
+    <!-- 用户结果映射 -->
+    <resultMap id="UserResultMap" type="com.ruoyi.yike.domain.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatar" column="avatar"/>
+        <result property="school" column="school"/>
+        <result property="major" column="major"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <!-- 根据邮箱查询用户（登录用） -->
+    <select id="selectByEmail" parameterType="String" resultMap="UserResultMap">
+        SELECT id, username, email, password, nickname, avatar, school, major,
+               created_at, updated_at, status
+        FROM users
+        WHERE email = #{email} AND status = 1
+    </select>
+
+    <!-- 根据用户名查询用户 -->
+    <select id="selectByUsername" parameterType="String" resultMap="UserResultMap">
+        SELECT id, username, email, password, nickname, avatar, school, major,
+               created_at, updated_at, status
+        FROM users
+        WHERE username = #{username} AND status = 1
+    </select>
+
+    <!-- 根据ID查询用户信息 -->
+    <select id="selectById" parameterType="Long" resultMap="UserResultMap">
+        SELECT id, username, email, nickname, avatar, school, major,
+               created_at, updated_at, status
+        FROM users
+        WHERE id = #{id} AND status = 1
+    </select>
+
+    <!-- 新增用户（注册） -->
+    <insert id="insert" parameterType="com.ruoyi.yike.domain.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (username, email, password, nickname, avatar, school, major)
+        VALUES (#{username}, #{email}, #{password}, #{nickname}, #{avatar}, #{school}, #{major})
+    </insert>
+
+    <!-- 更新用户信息 -->
+    <update id="updateById" parameterType="com.ruoyi.yike.domain.User">
+        UPDATE users
+        SET nickname = #{nickname},
+            avatar = #{avatar},
+            school = #{school},
+            major = #{major},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新最后登录时间 -->
+    <update id="updateLastLoginTime" parameterType="Long">
+        UPDATE users
+        SET updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{userId}
+    </update>
+
+    <!-- 检查邮箱是否已存在 -->
+    <select id="existsByEmail" parameterType="String" resultType="boolean">
+        SELECT COUNT(1) FROM users WHERE email = #{email}
+    </select>
+
+    <!-- 检查用户名是否已存在 -->
+    <select id="existsByUsername" parameterType="String" resultType="boolean">
+        SELECT COUNT(1) FROM users WHERE username = #{username}
+    </select>
+
+</mapper>

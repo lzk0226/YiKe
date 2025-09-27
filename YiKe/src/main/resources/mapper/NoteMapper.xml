@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ruoyi.yike.mapper.NoteMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="NoteResultMap" type="com.ruoyi.yike.domain.Note">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="description" column="description"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="noteTypeId" column="note_type_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="views" column="views"/>
+        <result property="likes" column="likes"/>
+        <result property="favorites" column="favorites"/>
+        <result property="rating" column="rating"/>
+        <result property="ratingCount" column="rating_count"/>
+
+        <!-- 关联 Subject -->
+        <association property="subject" javaType="com.ruoyi.yike.domain.Subject">
+            <id property="id" column="subject_id"/>
+            <result property="name" column="subject_name"/>
+            <result property="code" column="subject_code"/>
+        </association>
+
+        <!-- 关联 NoteType -->
+        <association property="noteType" javaType="com.ruoyi.yike.domain.NoteType">
+            <id property="id" column="note_type_id"/>
+            <result property="name" column="note_type_name"/>
+            <result property="code" column="note_type_code"/>
+        </association>
+
+        <!-- 关联 User -->
+        <association property="author" javaType="com.ruoyi.yike.domain.User">
+            <id property="id" column="user_id"/>
+            <result property="nickname" column="author_nickname"/>
+        </association>
+    </resultMap>
+
+    <!-- 卡片结果映射（不包含content字段，减少数据传输） -->
+    <resultMap id="NoteCardResultMap" type="com.ruoyi.yike.domain.Note">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="noteTypeId" column="note_type_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="views" column="views"/>
+        <result property="likes" column="likes"/>
+        <result property="favorites" column="favorites"/>
+        <result property="rating" column="rating"/>
+        <result property="ratingCount" column="rating_count"/>
+
+        <!-- 关联 Subject -->
+        <association property="subject" javaType="com.ruoyi.yike.domain.Subject">
+            <id property="id" column="subject_id"/>
+            <result property="name" column="subject_name"/>
+            <result property="code" column="subject_code"/>
+        </association>
+
+        <!-- 关联 NoteType -->
+        <association property="noteType" javaType="com.ruoyi.yike.domain.NoteType">
+            <id property="id" column="note_type_id"/>
+            <result property="name" column="note_type_name"/>
+            <result property="code" column="note_type_code"/>
+        </association>
+
+        <!-- 关联 User -->
+        <association property="author" javaType="com.ruoyi.yike.domain.User">
+            <id property="id" column="user_id"/>
+            <result property="nickname" column="author_nickname"/>
+        </association>
+    </resultMap>
+
+    <!-- 详情结果映射（包含所有字段和额外信息） -->
+    <resultMap id="NoteDetailResultMap" type="com.ruoyi.yike.domain.Note">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="description" column="description"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="noteTypeId" column="note_type_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="views" column="views"/>
+        <result property="likes" column="likes"/>
+        <result property="favorites" column="favorites"/>
+        <result property="rating" column="rating"/>
+        <result property="ratingCount" column="rating_count"/>
+
+        <!-- 关联 Subject -->
+        <association property="subject" javaType="com.ruoyi.yike.domain.Subject">
+            <id property="id" column="subject_id"/>
+            <result property="name" column="subject_name"/>
+            <result property="code" column="subject_code"/>
+        </association>
+
+        <!-- 关联 NoteType -->
+        <association property="noteType" javaType="com.ruoyi.yike.domain.NoteType">
+            <id property="id" column="note_type_id"/>
+            <result property="name" column="note_type_name"/>
+            <result property="code" column="note_type_code"/>
+        </association>
+
+        <!-- 关联 User -->
+        <association property="author" javaType="com.ruoyi.yike.domain.User">
+            <id property="id" column="user_id"/>
+            <result property="nickname" column="author_nickname"/>
+            <result property="avatar" column="author_avatar"/>
+            <result property="email" column="author_email"/>
+        </association>
+
+        <!-- 关联图片列表 -->
+        <collection property="images" ofType="com.ruoyi.yike.domain.NoteImage">
+            <id property="id" column="img_id"/>
+            <result property="noteId" column="id"/>
+            <result property="imageUrl" column="img_url"/>
+            <result property="sortOrder" column="img_order"/> <!-- img_sort 对应 image_order -->
+        </collection>
+    </resultMap>
+
+    <!-- 原有查询：查询所有笔记 -->
+    <select id="selectAllNotes" resultMap="NoteResultMap">
+        SELECT n.id, n.title, n.content, n.description,
+               n.subject_id, n.note_type_id, n.user_id,
+               n.views, n.likes, n.favorites, n.rating, n.rating_count,
+               s.name AS subject_name, s.code AS subject_code,
+               t.name AS note_type_name, t.code AS note_type_code,
+               u.nickname AS author_nickname
+        FROM notes n
+                 LEFT JOIN subjects s ON n.subject_id = s.id
+                 LEFT JOIN note_types t ON n.note_type_id = t.id
+                 LEFT JOIN users u ON n.user_id = u.id
+        WHERE n.status = 1
+        ORDER BY n.created_at DESC
+    </select>
+
+    <!-- 原有查询：根据ID查询笔记 -->
+    <select id="selectNoteById" resultMap="NoteResultMap">
+        SELECT n.id, n.title, n.content, n.description,
+               n.subject_id, n.note_type_id, n.user_id,
+               n.views, n.likes, n.favorites, n.rating, n.rating_count,
+               s.name AS subject_name, s.code AS subject_code,
+               t.name AS note_type_name, t.code AS note_type_code,
+               u.nickname AS author_nickname
+        FROM notes n
+                 LEFT JOIN subjects s ON n.subject_id = s.id
+                 LEFT JOIN note_types t ON n.note_type_id = t.id
+                 LEFT JOIN users u ON n.user_id = u.id
+        WHERE n.id = #{id} AND n.status = 1
+    </select>
+
+    <!-- 最新发布 -->
+    <select id="selectNoteCardsLatest" resultMap="NoteCardResultMap">
+        SELECT n.id, n.title, n.description,
+        n.subject_id, n.note_type_id, n.user_id,
+        n.views, n.likes, n.favorites, n.rating, n.rating_count,
+        s.name AS subject_name, s.code AS subject_code,
+        t.name AS note_type_name, t.code AS note_type_code,
+        u.nickname AS author_nickname
+        FROM notes n
+        LEFT JOIN subjects s ON n.subject_id = s.id
+        LEFT JOIN note_types t ON n.note_type_id = t.id
+        LEFT JOIN users u ON n.user_id = u.id
+        WHERE n.status = 1
+        <if test="subjectId != null">
+            AND n.subject_id = #{subjectId}
+        </if>
+        <if test="noteTypeId != null">
+            AND n.note_type_id = #{noteTypeId}
+        </if>
+        ORDER BY n.created_at DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 最多阅读 -->
+    <select id="selectNoteCardsMostRead" resultMap="NoteCardResultMap">
+        SELECT n.id, n.title, n.description,
+        n.subject_id, n.note_type_id, n.user_id,
+        n.views, n.likes, n.favorites, n.rating, n.rating_count,
+        s.name AS subject_name, s.code AS subject_code,
+        t.name AS note_type_name, t.code AS note_type_code,
+        u.nickname AS author_nickname
+        FROM notes n
+        LEFT JOIN subjects s ON n.subject_id = s.id
+        LEFT JOIN note_types t ON n.note_type_id = t.id
+        LEFT JOIN users u ON n.user_id = u.id
+        WHERE n.status = 1
+        <if test="subjectId != null">
+            AND n.subject_id = #{subjectId}
+        </if>
+        <if test="noteTypeId != null">
+            AND n.note_type_id = #{noteTypeId}
+        </if>
+        ORDER BY n.views DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 评分最高 -->
+    <select id="selectNoteCardsTopRated" resultMap="NoteCardResultMap">
+        SELECT n.id, n.title, n.description,
+        n.subject_id, n.note_type_id, n.user_id,
+        n.views, n.likes, n.favorites, n.rating, n.rating_count,
+        s.name AS subject_name, s.code AS subject_code,
+        t.name AS note_type_name, t.code AS note_type_code,
+        u.nickname AS author_nickname
+        FROM notes n
+        LEFT JOIN subjects s ON n.subject_id = s.id
+        LEFT JOIN note_types t ON n.note_type_id = t.id
+        LEFT JOIN users u ON n.user_id = u.id
+        WHERE n.status = 1
+        <if test="subjectId != null">
+            AND n.subject_id = #{subjectId}
+        </if>
+        <if test="noteTypeId != null">
+            AND n.note_type_id = #{noteTypeId}
+        </if>
+        ORDER BY n.rating DESC, n.rating_count DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 最多收藏 -->
+    <select id="selectNoteCardsMostFavorited" resultMap="NoteCardResultMap">
+        SELECT n.id, n.title, n.description,
+        n.subject_id, n.note_type_id, n.user_id,
+        n.views, n.likes, n.favorites, n.rating, n.rating_count,
+        s.name AS subject_name, s.code AS subject_code,
+        t.name AS note_type_name, t.code AS note_type_code,
+        u.nickname AS author_nickname
+        FROM notes n
+        LEFT JOIN subjects s ON n.subject_id = s.id
+        LEFT JOIN note_types t ON n.note_type_id = t.id
+        LEFT JOIN users u ON n.user_id = u.id
+        WHERE n.status = 1
+        <if test="subjectId != null">
+            AND n.subject_id = #{subjectId}
+        </if>
+        <if test="noteTypeId != null">
+            AND n.note_type_id = #{noteTypeId}
+        </if>
+        ORDER BY n.favorites DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+
+    <!-- 查询笔记详情 -->
+    <select id="selectNoteDetailById" resultMap="NoteDetailResultMap">
+        SELECT n.id, n.title, n.content, n.description,
+               n.subject_id, n.note_type_id, n.user_id,
+               n.views, n.likes, n.favorites, n.rating, n.rating_count,
+               s.name AS subject_name, s.code AS subject_code,
+               t.name AS note_type_name, t.code AS note_type_code,
+               u.nickname AS author_nickname, u.avatar AS author_avatar, u.email AS author_email,
+               ni.id AS img_id, ni.image_url AS img_url,
+               ni.image_order AS img_sort
+        FROM notes n
+                 LEFT JOIN subjects s ON n.subject_id = s.id
+                 LEFT JOIN note_types t ON n.note_type_id = t.id
+                 LEFT JOIN users u ON n.user_id = u.id
+                 LEFT JOIN note_images ni ON n.id = ni.note_id
+        WHERE n.id = #{id} AND n.status = 1
+        ORDER BY ni.image_order ASC
+    </select>
+
+    <select id="selectNoteTotal" resultType="int">
+        SELECT COUNT(*) FROM notes WHERE status = 1
+    </select>
+
+</mapper>

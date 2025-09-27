@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.yike.mapper.NotesMapper">
+    
+    <resultMap type="Notes" id="NotesResult">
+        <result property="id"    column="id"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="description"    column="description"    />
+        <result property="subjectId"    column="subject_id"    />
+        <result property="noteTypeId"    column="note_type_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="views"    column="views"    />
+        <result property="likes"    column="likes"    />
+        <result property="favorites"    column="favorites"    />
+        <result property="rating"    column="rating"    />
+        <result property="ratingCount"    column="rating_count"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectNotesVo">
+        select id, title, content, description, subject_id, note_type_id, user_id, views, likes, favorites, rating, rating_count, created_at, updated_at, status from notes
+    </sql>
+
+    <select id="selectNotesList" parameterType="Notes" resultMap="NotesResult">
+        <include refid="selectNotesVo"/>
+        <where>  
+            <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+            <if test="content != null  and content != ''"> and content like concat('%', #{content}, '%')</if>
+            <if test="description != null  and description != ''"> and description like concat('%', #{description}, '%')</if>
+            <if test="subjectId != null "> and subject_id = #{subjectId}</if>
+            <if test="noteTypeId != null "> and note_type_id = #{noteTypeId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="views != null "> and views = #{views}</if>
+            <if test="likes != null "> and likes = #{likes}</if>
+            <if test="favorites != null "> and favorites = #{favorites}</if>
+            <if test="rating != null "> and rating = #{rating}</if>
+            <if test="ratingCount != null "> and rating_count = #{ratingCount}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectNotesById" parameterType="Long" resultMap="NotesResult">
+        <include refid="selectNotesVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertNotes" parameterType="Notes" useGeneratedKeys="true" keyProperty="id">
+        insert into notes
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">title,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="description != null">description,</if>
+            <if test="subjectId != null">subject_id,</if>
+            <if test="noteTypeId != null">note_type_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="views != null">views,</if>
+            <if test="likes != null">likes,</if>
+            <if test="favorites != null">favorites,</if>
+            <if test="rating != null">rating,</if>
+            <if test="ratingCount != null">rating_count,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="description != null">#{description},</if>
+            <if test="subjectId != null">#{subjectId},</if>
+            <if test="noteTypeId != null">#{noteTypeId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="views != null">#{views},</if>
+            <if test="likes != null">#{likes},</if>
+            <if test="favorites != null">#{favorites},</if>
+            <if test="rating != null">#{rating},</if>
+            <if test="ratingCount != null">#{ratingCount},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateNotes" parameterType="Notes">
+        update notes
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="subjectId != null">subject_id = #{subjectId},</if>
+            <if test="noteTypeId != null">note_type_id = #{noteTypeId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="views != null">views = #{views},</if>
+            <if test="likes != null">likes = #{likes},</if>
+            <if test="favorites != null">favorites = #{favorites},</if>
+            <if test="rating != null">rating = #{rating},</if>
+            <if test="ratingCount != null">rating_count = #{ratingCount},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteNotesById" parameterType="Long">
+        delete from notes where id = #{id}
+    </delete>
+
+    <delete id="deleteNotesByIds" parameterType="String">
+        delete from notes where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

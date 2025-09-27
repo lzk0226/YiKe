@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.yike.mapper.UserFavoritesMapper">
+    
+    <resultMap type="UserFavorites" id="UserFavoritesResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="noteId"    column="note_id"    />
+        <result property="createdAt"    column="created_at"    />
+    </resultMap>
+
+    <sql id="selectUserFavoritesVo">
+        select id, user_id, note_id, created_at from user_favorites
+    </sql>
+
+    <select id="selectUserFavoritesList" parameterType="UserFavorites" resultMap="UserFavoritesResult">
+        <include refid="selectUserFavoritesVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="noteId != null "> and note_id = #{noteId}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserFavoritesById" parameterType="Long" resultMap="UserFavoritesResult">
+        <include refid="selectUserFavoritesVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertUserFavorites" parameterType="UserFavorites" useGeneratedKeys="true" keyProperty="id">
+        insert into user_favorites
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="noteId != null">note_id,</if>
+            <if test="createdAt != null">created_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="noteId != null">#{noteId},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserFavorites" parameterType="UserFavorites">
+        update user_favorites
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="noteId != null">note_id = #{noteId},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUserFavoritesById" parameterType="Long">
+        delete from user_favorites where id = #{id}
+    </delete>
+
+    <delete id="deleteUserFavoritesByIds" parameterType="String">
+        delete from user_favorites where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
