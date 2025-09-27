@@ -118,7 +118,6 @@
             <id property="id" column="img_id"/>
             <result property="noteId" column="id"/>
             <result property="imageUrl" column="img_url"/>
-            <!-- 注意：数据库 image_order 映射到实体类 imageOrder -->
             <result property="imageOrder" column="img_order"/>
         </collection>
     </resultMap>
@@ -126,6 +125,17 @@
     <!-- 公共WHERE条件片段 -->
     <sql id="noteFilterConditions">
         WHERE n.status = 1
+        <if test="subjectId != null">
+            AND n.subject_id = #{subjectId}
+        </if>
+        <if test="noteTypeId != null">
+            AND n.note_type_id = #{noteTypeId}
+        </if>
+    </sql>
+
+    <!-- 个人笔记WHERE条件片段 -->
+    <sql id="userNoteFilterConditions">
+        WHERE n.status = 1 AND n.user_id = #{userId}
         <if test="subjectId != null">
             AND n.subject_id = #{subjectId}
         </if>
@@ -236,26 +246,100 @@
     <!-- 查询笔记详情 -->
     <select id="selectNoteDetailById" resultMap="NoteDetailResultMap">
         SELECT n.id, n.title, n.content, n.description,
-        n.subject_id, n.note_type_id, n.user_id,
-        n.views, n.likes, n.favorites, n.rating, n.rating_count,
-        s.name AS subject_name, s.code AS subject_code,
-        t.name AS note_type_name, t.code AS note_type_code,
-        u.nickname AS author_nickname, u.avatar AS author_avatar, u.email AS author_email,
-        ni.id AS img_id, ni.image_url AS img_url,
-        ni.image_order AS img_order  <!-- 👈 给 image_order 起别名 img_order -->
+               n.subject_id, n.note_type_id, n.user_id,
+               n.views, n.likes, n.favorites, n.rating, n.rating_count,
+               s.name AS subject_name, s.code AS subject_code,
+               t.name AS note_type_name, t.code AS note_type_code,
+               u.nickname AS author_nickname, u.avatar AS author_avatar, u.email AS author_email,
+               ni.id AS img_id, ni.image_url AS img_url,
+               ni.image_order AS img_order
         FROM notes n
-        LEFT JOIN subjects s ON n.subject_id = s.id
-        LEFT JOIN note_types t ON n.note_type_id = t.id
-        LEFT JOIN users u ON n.user_id = u.id
-        LEFT JOIN note_images ni ON n.id = ni.note_id
+                 LEFT JOIN subjects s ON n.subject_id = s.id
+                 LEFT JOIN note_types t ON n.note_type_id = t.id
+                 LEFT JOIN users u ON n.user_id = u.id
+                 LEFT JOIN note_images ni ON n.id = ni.note_id
         WHERE n.id = #{id} AND n.status = 1
         ORDER BY ni.image_order ASC
     </select>
-    <!-- 修复：根据筛选条件查询笔记总数 -->
+
+    <!-- 根据筛选条件查询笔记总数 -->
     <select id="selectNoteTotal" resultType="int">
         SELECT COUNT(*)
         FROM notes n
         <include refid="noteFilterConditions"/>
     </select>
+
+    <!-- 新增：根据用户ID获取笔记卡片列表 -->
+    <select id="selectNoteCardsByUserId" resultMap="NoteCardResultMap">
+        SELECT n.id, n.title, n.description,
+        n.subject_id, n.note_type_id, n.user_id,
+        n.views, n.likes, n.favorites, n.rating, n.rating_count,
+        s.name AS subject_name, s.code AS subject_code,
+        t.name AS note_type_name, t.code AS note_type_code,
+        u.nickname AS author_nickname
+        FROM notes n
+        LEFT JOIN subjects s ON n.subject_id = s.id
+        LEFT JOIN note_types t ON n.note_type_id = t.id
+        LEFT JOIN users u ON n.user_id = u.id
+        <include refid="userNoteFilterConditions"/>
+        ORDER BY n.created_at DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 新增：根据用户ID获取笔记总数 -->
+    <select id="selectNoteCountByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM notes n
+        <include refid="userNoteFilterConditions"/>
+    </select>
+
+    <!-- 新增笔记 -->
+    <insert id="insertNote" parameterType="com.ruoyi.yike.domain.Note" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO notes (
+            title,
+            content,
+            description,
+            subject_id,
+            note_type_id,
+            user_id,
+            views,
+            likes,
+            favorites,
+            rating,
+            rating_count,
+            status,
+            created_at,
+            updated_at
+        ) VALUES (
+                     #{title},
+                     #{content},
+                     #{description},
+                     #{subjectId},
+                     #{noteTypeId},
+                     #{userId},
+                     #{views},
+                     #{likes},
+                     #{favorites},
+                     #{rating},
+                     #{ratingCount},
+                     1,
+                     NOW(),
+                     NOW()
+                 )
+    </insert>
+
+    <!-- 更新笔记信息 -->
+    <update id="updateNote" parameterType="com.ruoyi.yike.domain.Note">
+        UPDATE notes
+        SET title = #{title},
+            content = #{content},
+            description = #{description},
+            subject_id = #{subjectId},
+            note_type_id = #{noteTypeId},
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND user_id = #{userId}
+          AND status = 1
+    </update>
 
 </mapper>

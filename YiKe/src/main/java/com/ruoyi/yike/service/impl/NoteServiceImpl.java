@@ -85,4 +85,35 @@ public class NoteServiceImpl implements NoteService {
     public int getNoteTotal(Long subjectId, Long noteTypeId) {
         return noteMapper.selectNoteTotal(subjectId, noteTypeId);
     }
+
+    @Override
+    public List<Note> getNoteCardsByUserId(Long userId, int page, int pageSize, Long subjectId, Long noteTypeId) {
+        int offset = (page - 1) * pageSize;
+        return noteMapper.selectNoteCardsByUserId(userId, offset, pageSize, subjectId, noteTypeId);
+    }
+
+    @Override
+    public int getNoteCountByUserId(Long userId, Long subjectId, Long noteTypeId) {
+        return noteMapper.selectNoteCountByUserId(userId, subjectId, noteTypeId);
+    }
+
+    @Override
+    public boolean publishNote(Note note) {
+        try {
+            return noteMapper.insertNote(note) > 0;
+        } catch (Exception e) {
+            System.err.println("发布笔记失败：" + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateNote(Note note) {
+        try {
+            return noteMapper.updateNote(note) > 0;
+        } catch (Exception e) {
+            System.err.println("更新笔记失败：" + e.getMessage());
+            return false;
+        }
+    }
 }

@@ -35,4 +35,28 @@ public interface NoteService {
     Note getNoteDetailById(Long id);
 
     int getNoteTotal(Long subjectId, Long noteTypeId);
+
+    /**
+     * 根据用户ID获取笔记卡片列表
+     * @param userId 用户ID
+     * @param page 页码
+     * @param pageSize 每页数量
+     * @param subjectId 学科ID（可选）
+     * @param noteTypeId 笔记类型ID（可选）
+     * @return 笔记卡片列表
+     */
+    List<Note> getNoteCardsByUserId(Long userId, int page, int pageSize, Long subjectId, Long noteTypeId);
+
+    /**
+     * 根据用户ID获取笔记总数
+     * @param userId 用户ID
+     * @param subjectId 学科ID（可选）
+     * @param noteTypeId 笔记类型ID（可选）
+     * @return 笔记总数
+     */
+    int getNoteCountByUserId(Long userId, Long subjectId, Long noteTypeId);
+
+    boolean publishNote(Note note);
+    boolean updateNote(Note note);
+
 }

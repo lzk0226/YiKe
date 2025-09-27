@@ -61,4 +61,46 @@ public interface NoteMapper {
      */
     int selectNoteTotal(@Param("subjectId") Long subjectId,
                         @Param("noteTypeId") Long noteTypeId);
+
+    // 在NoteMapper接口中新增以下方法：
+
+    /**
+     * 根据用户ID获取笔记卡片列表
+     * @param userId 用户ID
+     * @param offset 偏移量
+     * @param pageSize 每页数量
+     * @param subjectId 学科ID（可选）
+     * @param noteTypeId 笔记类型ID（可选）
+     * @return 笔记卡片列表
+     */
+    List<Note> selectNoteCardsByUserId(@Param("userId") Long userId,
+                                       @Param("offset") int offset,
+                                       @Param("pageSize") int pageSize,
+                                       @Param("subjectId") Long subjectId,
+                                       @Param("noteTypeId") Long noteTypeId);
+
+    /**
+     * 根据用户ID获取笔记总数
+     * @param userId 用户ID
+     * @param subjectId 学科ID（可选）
+     * @param noteTypeId 笔记类型ID（可选）
+     * @return 笔记总数
+     */
+    int selectNoteCountByUserId(@Param("userId") Long userId,
+                                @Param("subjectId") Long subjectId,
+                                @Param("noteTypeId") Long noteTypeId);
+
+    /**
+     * 新增笔记
+     * @param note 笔记信息
+     * @return 影响行数
+     */
+    int insertNote(Note note);
+
+    /**
+     * 更新笔记信息
+     * @param note 笔记信息
+     * @return 影响行数
+     */
+    int updateNote(Note note);
 }
