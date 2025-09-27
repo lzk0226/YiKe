@@ -37,11 +37,11 @@ public class UserFavoriteController extends BaseController
     /**
      * 获取单个用户收藏列表
      */
-    @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {
+    @GetMapping
+    public AjaxResult getInfo(@RequestParam("id") Long id) {
         return success(userFavoriteService.selectUserFavoriteById(id));
     }
+
 
     /**
      * 新增用户收藏
