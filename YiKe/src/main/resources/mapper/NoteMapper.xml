@@ -144,6 +144,21 @@
         </if>
     </sql>
 
+    <!-- 搜索条件片段 -->
+    <sql id="searchFilterConditions">
+        WHERE n.status = 1
+        <if test="keyword != null and keyword != ''">
+            AND (n.title LIKE CONCAT('%', #{keyword}, '%')
+            OR u.nickname LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="subjectId != null">
+            AND n.subject_id = #{subjectId}
+        </if>
+        <if test="noteTypeId != null">
+            AND n.note_type_id = #{noteTypeId}
+        </if>
+    </sql>
+
     <!-- 原有查询：查询所有笔记 -->
     <select id="selectAllNotes" resultMap="NoteResultMap">
         SELECT n.id, n.title, n.content, n.description,
@@ -291,6 +306,31 @@
         SELECT COUNT(*)
         FROM notes n
         <include refid="userNoteFilterConditions"/>
+    </select>
+
+    <!-- 新增：搜索笔记卡片列表（根据标题或作者模糊搜索） -->
+    <select id="searchNoteCards" resultMap="NoteCardResultMap">
+        SELECT n.id, n.title, n.description,
+        n.subject_id, n.note_type_id, n.user_id,
+        n.views, n.likes, n.favorites, n.rating, n.rating_count,
+        s.name AS subject_name, s.code AS subject_code,
+        t.name AS note_type_name, t.code AS note_type_code,
+        u.nickname AS author_nickname
+        FROM notes n
+        LEFT JOIN subjects s ON n.subject_id = s.id
+        LEFT JOIN note_types t ON n.note_type_id = t.id
+        LEFT JOIN users u ON n.user_id = u.id
+        <include refid="searchFilterConditions"/>
+        ORDER BY n.created_at DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 新增：获取搜索结果总数 -->
+    <select id="searchNoteTotal" resultType="int">
+        SELECT COUNT(*)
+        FROM notes n
+        LEFT JOIN users u ON n.user_id = u.id
+        <include refid="searchFilterConditions"/>
     </select>
 
     <!-- 新增笔记 -->

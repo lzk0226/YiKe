@@ -80,6 +80,32 @@ public interface NoteMapper {
                                        @Param("noteTypeId") Long noteTypeId);
 
     /**
+     * 搜索笔记卡片列表（根据标题或作者模糊搜索）
+     * @param keyword 搜索关键词
+     * @param subjectId 学科ID（可选）
+     * @param noteTypeId 笔记类型ID（可选）
+     * @param offset 偏移量
+     * @param pageSize 页面大小
+     * @return 笔记卡片列表
+     */
+    List<Note> searchNoteCards(@Param("keyword") String keyword,
+                               @Param("subjectId") Long subjectId,
+                               @Param("noteTypeId") Long noteTypeId,
+                               @Param("offset") int offset,
+                               @Param("pageSize") int pageSize);
+
+    /**
+     * 获取搜索结果总数 - 修复：添加缺失的方法
+     * @param keyword 搜索关键词
+     * @param subjectId 学科ID（可选）
+     * @param noteTypeId 笔记类型ID（可选）
+     * @return 搜索结果总数
+     */
+    int searchNoteTotal(@Param("keyword") String keyword,
+                        @Param("subjectId") Long subjectId,
+                        @Param("noteTypeId") Long noteTypeId);
+
+    /**
      * 根据用户ID获取笔记总数
      * @param userId 用户ID
      * @param subjectId 学科ID（可选）

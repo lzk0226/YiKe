@@ -48,6 +48,26 @@ public interface NoteService {
     List<Note> getNoteCardsByUserId(Long userId, int page, int pageSize, Long subjectId, Long noteTypeId);
 
     /**
+     * 搜索笔记卡片列表
+     * @param keyword 搜索关键词
+     * @param subjectId 学科ID
+     * @param noteTypeId 笔记类型ID
+     * @param offset 偏移量
+     * @param pageSize 页面大小
+     * @return 笔记卡片列表
+     */
+    List<Note> getSearchNoteCards(String keyword, Long subjectId, Long noteTypeId, int offset, int pageSize);
+
+    /**
+     * 获取搜索结果总数 - 修复：添加缺失的方法
+     * @param keyword 搜索关键词
+     * @param subjectId 学科ID
+     * @param noteTypeId 笔记类型ID
+     * @return 搜索结果总数
+     */
+    int getSearchNoteTotal(String keyword, Long subjectId, Long noteTypeId);
+
+    /**
      * 根据用户ID获取笔记总数
      * @param userId 用户ID
      * @param subjectId 学科ID（可选）

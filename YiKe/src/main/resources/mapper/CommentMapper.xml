@@ -9,14 +9,14 @@
     <select id="selectAllComments" resultType="com.ruoyi.yike.domain.Comment">
         SELECT id, note_id AS noteId, user_id AS userId, parent_id AS parentId,
                content, likes
-        FROM yike_comment
+        FROM comments
     </select>
 
     <!-- 根据笔记ID查询评论列表 -->
     <select id="selectCommentsByNoteId" resultType="com.ruoyi.yike.domain.Comment">
         SELECT id, note_id AS noteId, user_id AS userId, parent_id AS parentId,
                content, likes
-        FROM yike_comment
+        FROM comments
         WHERE note_id = #{noteId}
         ORDER BY id ASC
     </select>
@@ -25,19 +25,19 @@
     <select id="selectCommentById" resultType="com.ruoyi.yike.domain.Comment">
         SELECT id, note_id AS noteId, user_id AS userId, parent_id AS parentId,
                content, likes
-        FROM yike_comment
+        FROM comments
         WHERE id = #{id}
     </select>
 
     <!-- 新增评论 -->
     <insert id="insertComment" parameterType="com.ruoyi.yike.domain.Comment" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO yike_comment (note_id, user_id, parent_id, content, likes)
+        INSERT INTO comments (note_id, user_id, parent_id, content, likes)
         VALUES (#{noteId}, #{userId}, #{parentId}, #{content}, #{likes})
     </insert>
 
     <!-- 更新评论点赞数 -->
     <update id="updateCommentLikes">
-        UPDATE yike_comment
+        UPDATE comments
         SET likes = #{likes}
         WHERE id = #{id}
     </update>

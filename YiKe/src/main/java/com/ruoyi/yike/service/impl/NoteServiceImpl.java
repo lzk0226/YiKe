@@ -93,6 +93,19 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    public List<Note> getSearchNoteCards(String keyword, Long subjectId, Long noteTypeId, int offset, int pageSize) {
+        return noteMapper.searchNoteCards(keyword, subjectId, noteTypeId, offset, pageSize);
+    }
+
+    /**
+     * 获取搜索结果总数 - 修复：新增实现
+     */
+    @Override
+    public int getSearchNoteTotal(String keyword, Long subjectId, Long noteTypeId) {
+        return noteMapper.searchNoteTotal(keyword, subjectId, noteTypeId);
+    }
+
+    @Override
     public int getNoteCountByUserId(Long userId, Long subjectId, Long noteTypeId) {
         return noteMapper.selectNoteCountByUserId(userId, subjectId, noteTypeId);
     }

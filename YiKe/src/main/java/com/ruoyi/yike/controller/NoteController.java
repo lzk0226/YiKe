@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +108,61 @@ public class NoteController extends BaseController {
         data.put("pageNum", page);
         data.put("pageSize", pageSize);
         return AjaxResult.success(data);
+    }
+
+    @GetMapping("/search")
+    public AjaxResult searchNotes(@RequestParam(required = false) String keyword,
+                                  @RequestParam(defaultValue = "1") int page,
+                                  @RequestParam(defaultValue = "6") int pageSize,
+                                  @RequestParam(required = false) Long subjectId,
+                                  @RequestParam(required = false) Long noteTypeId) {
+        try {
+            // 参数验证
+            if (keyword != null) {
+                keyword = keyword.trim();
+                if (keyword.isEmpty()) {
+                    keyword = null;
+                }
+            }
+
+            // 计算偏移量
+            int offset = (page - 1) * pageSize;
+
+            // 执行搜索
+            List<Note> notes = noteService.getSearchNoteCards(keyword, subjectId, noteTypeId, offset, pageSize);
+            int total = noteService.getSearchNoteTotal(keyword, subjectId, noteTypeId);
+
+            // 构建返回数据
+            Map<String, Object> data = new HashMap<>();
+            data.put("list", notes);
+            data.put("total", total);
+            data.put("pageNum", page);
+            data.put("pageSize", pageSize);
+            data.put("keyword", keyword);
+
+            return AjaxResult.success(data);
+        } catch (Exception e) {
+            return AjaxResult.error(500, "搜索笔记失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 热门搜索建议 - 额外功能：获取热门搜索词
+     * 基于笔记标题中的关键词统计
+     */
+    @GetMapping("/search/hot")
+    public AjaxResult getHotSearchKeywords() {
+        try {
+            // 这里可以根据实际需求实现热门搜索词的统计逻辑
+            // 暂时返回一些示例数据
+            List<String> hotKeywords = Arrays.asList(
+                    "数学", "物理", "化学", "英语", "编程",
+                    "算法", "数据结构", "机器学习", "人工智能"
+            );
+            return AjaxResult.success(hotKeywords);
+        } catch (Exception e) {
+            return AjaxResult.error(500, "获取热门搜索词失败：" + e.getMessage());
+        }
     }
 
     /**
