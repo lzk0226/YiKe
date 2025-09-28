@@ -382,4 +382,50 @@
           AND status = 1
     </update>
 
+
+    <!-- 在NoteMapper.xml文件中添加以下SQL配置 -->
+
+    <!-- 检查用户是否已点赞笔记 -->
+    <select id="isNoteLikedByUser" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM user_likes
+        WHERE user_id = #{userId}
+          AND target_type = 'note'
+          AND target_id = #{noteId}
+    </select>
+
+    <!-- 检查用户是否已收藏笔记 -->
+    <select id="isNoteFavoritedByUser" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM user_favorites
+        WHERE user_id = #{userId}
+          AND note_id = #{noteId}
+    </select>
+
+    <!-- 添加点赞记录 -->
+    <insert id="insertUserLike">
+        INSERT INTO user_likes (user_id, target_type, target_id, created_at)
+        VALUES (#{userId}, 'note', #{noteId}, NOW())
+    </insert>
+
+    <!-- 删除点赞记录 -->
+    <delete id="deleteUserLike">
+        DELETE FROM user_likes
+        WHERE user_id = #{userId}
+          AND target_type = 'note'
+          AND target_id = #{noteId}
+    </delete>
+
+    <!-- 添加收藏记录 -->
+    <insert id="insertUserFavorite">
+        INSERT INTO user_favorites (user_id, note_id, created_at)
+        VALUES (#{userId}, #{noteId}, NOW())
+    </insert>
+
+    <!-- 删除收藏记录 -->
+    <delete id="deleteUserFavorite">
+        DELETE FROM user_favorites
+        WHERE user_id = #{userId}
+          AND note_id = #{noteId}
+    </delete>
 </mapper>

@@ -79,4 +79,38 @@ public interface NoteService {
     boolean publishNote(Note note);
     boolean updateNote(Note note);
 
+
+    /**
+     * 切换笔记点赞状态
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @return 是否已点赞
+     */
+    boolean toggleLikeNote(Long userId, Long noteId);
+
+    /**
+     * 切换笔记收藏状态
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @return 是否已收藏
+     */
+    boolean toggleFavoriteNote(Long userId, Long noteId);
+
+    /**
+     * 检查用户是否已点赞笔记
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @return 是否已点赞
+     */
+    boolean isNoteLikedByUser(Long userId, Long noteId);
+
+    /**
+     * 检查用户是否已收藏笔记
+     * @param userId 用户ID
+     * @param noteId 笔记ID
+     * @return 是否已收藏
+     */
+    boolean isNoteFavoritedByUser(Long userId, Long noteId);
+
+
 }

@@ -129,4 +129,47 @@ public interface NoteMapper {
      * @return 影响行数
      */
     int updateNote(Note note);
+
+    /**
+     * 检查用户是否已点赞笔记
+     */
+    boolean isNoteLikedByUser(@Param("userId") Long userId, @Param("noteId") Long noteId);
+
+    /**
+     * 检查用户是否已收藏笔记
+     */
+    boolean isNoteFavoritedByUser(@Param("userId") Long userId, @Param("noteId") Long noteId);
+
+    /**
+     * 添加点赞记录
+     */
+    int insertUserLike(@Param("userId") Long userId, @Param("noteId") Long noteId);
+
+    /**
+     * 删除点赞记录
+     */
+    int deleteUserLike(@Param("userId") Long userId, @Param("noteId") Long noteId);
+
+    /**
+     * 添加收藏记录
+     */
+    int insertUserFavorite(@Param("userId") Long userId, @Param("noteId") Long noteId);
+
+    /**
+     * 删除收藏记录
+     */
+    int deleteUserFavorite(@Param("userId") Long userId, @Param("noteId") Long noteId);
+
+    /**
+     * 更新笔记点赞数
+     */
+    @Update("UPDATE notes SET likes = likes + #{increment} WHERE id = #{noteId}")
+    void updateNoteLikes(@Param("noteId") Long noteId, @Param("increment") int increment);
+
+    /**
+     * 更新笔记收藏数
+     */
+    @Update("UPDATE notes SET favorites = favorites + #{increment} WHERE id = #{noteId}")
+    void updateNoteFavorites(@Param("noteId") Long noteId, @Param("increment") int increment);
+
 }

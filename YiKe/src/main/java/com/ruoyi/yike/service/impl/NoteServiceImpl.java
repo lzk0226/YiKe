@@ -5,6 +5,7 @@ import com.ruoyi.yike.mapper.NoteMapper;
 import com.ruoyi.yike.service.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -128,5 +129,75 @@ public class NoteServiceImpl implements NoteService {
             System.err.println("更新笔记失败：" + e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    @Transactional
+    public boolean toggleLikeNote(Long userId, Long noteId) {
+        try {
+            boolean isLiked = noteMapper.isNoteLikedByUser(userId, noteId);
+
+            if (isLiked) {
+                // 取消点赞
+                int deleteResult = noteMapper.deleteUserLike(userId, noteId);
+                if (deleteResult > 0) {
+                    // 更新笔记点赞数 -1
+                    noteMapper.updateNoteLikes(noteId, -1);
+                    return false;
+                }
+            } else {
+                // 添加点赞
+                int insertResult = noteMapper.insertUserLike(userId, noteId);
+                if (insertResult > 0) {
+                    // 更新笔记点赞数 +1
+                    noteMapper.updateNoteLikes(noteId, 1);
+                    return true;
+                }
+            }
+            return isLiked;
+        } catch (Exception e) {
+            System.err.println("点赞操作失败：" + e.getMessage());
+            throw new RuntimeException("点赞操作失败", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public boolean toggleFavoriteNote(Long userId, Long noteId) {
+        try {
+            boolean isFavorited = noteMapper.isNoteFavoritedByUser(userId, noteId);
+
+            if (isFavorited) {
+                // 取消收藏
+                int deleteResult = noteMapper.deleteUserFavorite(userId, noteId);
+                if (deleteResult > 0) {
+                    // 更新笔记收藏数 -1
+                    noteMapper.updateNoteFavorites(noteId, -1);
+                    return false;
+                }
+            } else {
+                // 添加收藏
+                int insertResult = noteMapper.insertUserFavorite(userId, noteId);
+                if (insertResult > 0) {
+                    // 更新笔记收藏数 +1
+                    noteMapper.updateNoteFavorites(noteId, 1);
+                    return true;
+                }
+            }
+            return isFavorited;
+        } catch (Exception e) {
+            System.err.println("收藏操作失败：" + e.getMessage());
+            throw new RuntimeException("收藏操作失败", e);
+        }
+    }
+
+    @Override
+    public boolean isNoteLikedByUser(Long userId, Long noteId) {
+        return noteMapper.isNoteLikedByUser(userId, noteId);
+    }
+
+    @Override
+    public boolean isNoteFavoritedByUser(Long userId, Long noteId) {
+        return noteMapper.isNoteFavoritedByUser(userId, noteId);
     }
 }

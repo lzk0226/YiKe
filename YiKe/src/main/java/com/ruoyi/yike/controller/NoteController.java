@@ -373,4 +373,140 @@ public class NoteController extends BaseController {
             return AjaxResult.error(500, "编辑笔记失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 点赞/取消点赞笔记
+     * 需要验证token和用户身份
+     */
+    @PostMapping("/like/{id}")
+    public AjaxResult toggleLikeNote(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            // 从请求头获取token
+            String token = request.getHeader("Authorization");
+            if (token == null || !token.startsWith("Bearer ")) {
+                return AjaxResult.error(401, "未提供有效的访问令牌");
+            }
+
+            // 去掉"Bearer "前缀
+            token = token.substring(7);
+
+            // 验证token并获取用户ID
+            if (!jwtUtils.validateToken(token)) {
+                return AjaxResult.error(401, "访问令牌已过期或无效");
+            }
+
+            Long tokenUserId = jwtUtils.getUserIdFromToken(token);
+            if (tokenUserId == null) {
+                return AjaxResult.error(401, "无效的用户令牌");
+            }
+
+            // 检查笔记是否存在
+            Note note = noteService.getNoteById(id);
+            if (note == null) {
+                return AjaxResult.error("笔记不存在");
+            }
+
+            // 调用service处理点赞逻辑
+            boolean isLiked = noteService.toggleLikeNote(tokenUserId, id);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("isLiked", isLiked);
+            data.put("message", isLiked ? "点赞成功" : "取消点赞成功");
+
+            return AjaxResult.success(data);
+        } catch (Exception e) {
+            return AjaxResult.error(500, "点赞操作失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 收藏/取消收藏笔记
+     * 需要验证token和用户身份
+     */
+    @PostMapping("/favorite/{id}")
+    public AjaxResult toggleFavoriteNote(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            // 从请求头获取token
+            String token = request.getHeader("Authorization");
+            if (token == null || !token.startsWith("Bearer ")) {
+                return AjaxResult.error(401, "未提供有效的访问令牌");
+            }
+
+            // 去掉"Bearer "前缀
+            token = token.substring(7);
+
+            // 验证token并获取用户ID
+            if (!jwtUtils.validateToken(token)) {
+                return AjaxResult.error(401, "访问令牌已过期或无效");
+            }
+
+            Long tokenUserId = jwtUtils.getUserIdFromToken(token);
+            if (tokenUserId == null) {
+                return AjaxResult.error(401, "无效的用户令牌");
+            }
+
+            // 检查笔记是否存在
+            Note note = noteService.getNoteById(id);
+            if (note == null) {
+                return AjaxResult.error("笔记不存在");
+            }
+
+            // 调用service处理收藏逻辑
+            boolean isFavorited = noteService.toggleFavoriteNote(tokenUserId, id);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("isFavorited", isFavorited);
+            data.put("message", isFavorited ? "收藏成功" : "取消收藏成功");
+
+            return AjaxResult.success(data);
+        } catch (Exception e) {
+            return AjaxResult.error(500, "收藏操作失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 检查用户对笔记的点赞和收藏状态
+     * 需要验证token
+     */
+    @GetMapping("/status/{id}")
+    public AjaxResult getNoteUserStatus(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            // 从请求头获取token
+            String token = request.getHeader("Authorization");
+            if (token == null || !token.startsWith("Bearer ")) {
+                return AjaxResult.error(401, "未提供有效的访问令牌");
+            }
+
+            // 去掉"Bearer "前缀
+            token = token.substring(7);
+
+            // 验证token并获取用户ID
+            if (!jwtUtils.validateToken(token)) {
+                return AjaxResult.error(401, "访问令牌已过期或无效");
+            }
+
+            Long tokenUserId = jwtUtils.getUserIdFromToken(token);
+            if (tokenUserId == null) {
+                return AjaxResult.error(401, "无效的用户令牌");
+            }
+
+            // 检查笔记是否存在
+            Note note = noteService.getNoteById(id);
+            if (note == null) {
+                return AjaxResult.error("笔记不存在");
+            }
+
+            // 获取用户状态
+            boolean isLiked = noteService.isNoteLikedByUser(tokenUserId, id);
+            boolean isFavorited = noteService.isNoteFavoritedByUser(tokenUserId, id);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("isLiked", isLiked);
+            data.put("isFavorited", isFavorited);
+
+            return AjaxResult.success(data);
+        } catch (Exception e) {
+            return AjaxResult.error(500, "获取状态失败：" + e.getMessage());
+        }
+    }
 }
