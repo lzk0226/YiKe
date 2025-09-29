@@ -1,11 +1,4 @@
 package com.ruoyi.yike.service.impl;
-
-/**
- * @version 1.0
- * 文件类型/说明:
- * 文件创建时间:2025/9/26上午 10:50
- * @Author : SoakLightDust
- */
 import com.ruoyi.yike.domain.User;
 import com.ruoyi.yike.service.UserService;
 import com.ruoyi.yike.mapper.UserMapper;
@@ -15,11 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
-/**
- * 用户服务实现类
- * @author SockLightDust
- * @version 1.0
- */
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {

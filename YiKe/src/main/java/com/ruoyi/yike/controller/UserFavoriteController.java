@@ -10,12 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * 用户收藏Controller
- *
- * @author ruoyi
- * @date 2025-09-26
- */
 @RestController
 @RequestMapping("/user/Favorite")
 public class UserFavoriteController extends BaseController

@@ -4,12 +4,7 @@ import com.ruoyi.yike.domain.Subject;
 
 import java.util.List;
 
-/**
- * 学科分类Mapper接口
- * 
- * @author ruoyi
- * @date 2025-09-26
- */
+
 public interface SubjectsMapper 
 {
     /**

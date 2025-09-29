@@ -1,11 +1,4 @@
 package com.ruoyi.yike.service;
-
-/**
- * @version 1.0
- * 文件类型/说明:
- * 文件创建时间:2025/9/26上午 10:50
- * @Author : SoakLightDust
- */
 import com.ruoyi.yike.domain.User;
 
 /**

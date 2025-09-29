@@ -8,12 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * 用户收藏Service业务层处理
- *
- * @author ruoyi
- * @date 2025-09-26
- */
 @Service
 public class UserFavoriteServiceImpl implements UserFavoriteService
 {

@@ -113,4 +113,13 @@ public interface NoteService {
     boolean isNoteFavoritedByUser(Long userId, Long noteId);
 
 
+    // 根据用户ID获取收藏的笔记列表
+    List<Note> getFavoriteNotesByUserId(Long userId, int page, int pageSize, Long subjectId, Long noteTypeId);
+
+    // 获取用户收藏笔记的总数
+    int getFavoriteNotesCountByUserId(Long userId, Long subjectId, Long noteTypeId);
+
+    // 批量取消收藏
+    boolean batchCancelFavorites(Long userId, List<Long> noteIds);
+
 }

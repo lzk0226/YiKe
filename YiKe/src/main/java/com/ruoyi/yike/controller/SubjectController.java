@@ -13,12 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * 学科分类Controller
- * 
- * @author ruoyi
- * @date 2025-09-26
- */
 @RestController
 @RequestMapping("/user/subjects")
 public class SubjectController extends BaseController

@@ -509,4 +509,96 @@ public class NoteController extends BaseController {
             return AjaxResult.error(500, "获取状态失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 获取用户收藏的笔记列表
+     * 需要验证token
+     */
+    @GetMapping("/favorites")
+    public AjaxResult getFavoriteNotes(@RequestParam(defaultValue = "1") int page,
+                                       @RequestParam(defaultValue = "6") int pageSize,
+                                       @RequestParam(required = false) Long subjectId,
+                                       @RequestParam(required = false) Long noteTypeId,
+                                       HttpServletRequest request) {
+        try {
+            // 从请求头获取token
+            String token = request.getHeader("Authorization");
+            if (token == null || !token.startsWith("Bearer ")) {
+                return AjaxResult.error(401, "未提供有效的访问令牌");
+            }
+
+            // 去掉"Bearer "前缀
+            token = token.substring(7);
+
+            // 验证token并获取用户ID
+            if (!jwtUtils.validateToken(token)) {
+                return AjaxResult.error(401, "访问令牌已过期或无效");
+            }
+
+            Long tokenUserId = jwtUtils.getUserIdFromToken(token);
+            if (tokenUserId == null) {
+                return AjaxResult.error(401, "无效的用户令牌");
+            }
+
+            // 获取收藏列表
+            List<Note> notes = noteService.getFavoriteNotesByUserId(tokenUserId, page, pageSize, subjectId, noteTypeId);
+            int total = noteService.getFavoriteNotesCountByUserId(tokenUserId, subjectId, noteTypeId);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("list", notes);
+            data.put("total", total);
+            data.put("pageNum", page);
+            data.put("pageSize", pageSize);
+
+            return AjaxResult.success(data);
+        } catch (Exception e) {
+            return AjaxResult.error(500, "获取收藏列表失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量取消收藏
+     * 需要验证token
+     */
+    @PostMapping("/favorites/batch-cancel")
+    public AjaxResult batchCancelFavorites(@RequestBody Map<String, List<Long>> requestBody,
+                                           HttpServletRequest request) {
+        try {
+            // 从请求头获取token
+            String token = request.getHeader("Authorization");
+            if (token == null || !token.startsWith("Bearer ")) {
+                return AjaxResult.error(401, "未提供有效的访问令牌");
+            }
+
+            // 去掉"Bearer "前缀
+            token = token.substring(7);
+
+            // 验证token并获取用户ID
+            if (!jwtUtils.validateToken(token)) {
+                return AjaxResult.error(401, "访问令牌已过期或无效");
+            }
+
+            Long tokenUserId = jwtUtils.getUserIdFromToken(token);
+            if (tokenUserId == null) {
+                return AjaxResult.error(401, "无效的用户令牌");
+            }
+
+            // 获取笔记ID列表
+            List<Long> noteIds = requestBody.get("noteIds");
+            if (noteIds == null || noteIds.isEmpty()) {
+                return AjaxResult.error(400, "笔记ID列表不能为空");
+            }
+
+            // 执行批量取消收藏
+            boolean success = noteService.batchCancelFavorites(tokenUserId, noteIds);
+
+            if (success) {
+                return AjaxResult.success("批量取消收藏成功");
+            } else {
+                return AjaxResult.error("批量取消收藏失败");
+            }
+        } catch (Exception e) {
+            return AjaxResult.error(500, "批量取消收藏失败：" + e.getMessage());
+        }
+    }
 }

@@ -11,11 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 用户控制器
- * @author SockLightDust
- * @version 1.0
- */
 @RestController
 @RequestMapping("/user")
 @CrossOrigin

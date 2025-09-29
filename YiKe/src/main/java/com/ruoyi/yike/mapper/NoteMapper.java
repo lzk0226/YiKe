@@ -172,4 +172,22 @@ public interface NoteMapper {
     @Update("UPDATE notes SET favorites = favorites + #{increment} WHERE id = #{noteId}")
     void updateNoteFavorites(@Param("noteId") Long noteId, @Param("increment") int increment);
 
+    // 根据用户ID获取收藏的笔记列表
+    List<Note> selectFavoriteNotesByUserId(@Param("userId") Long userId,
+                                           @Param("offset") int offset,
+                                           @Param("pageSize") int pageSize,
+                                           @Param("subjectId") Long subjectId,
+                                           @Param("noteTypeId") Long noteTypeId);
+
+    // 获取用户收藏笔记的总数
+    int selectFavoriteNotesCountByUserId(@Param("userId") Long userId,
+                                         @Param("subjectId") Long subjectId,
+                                         @Param("noteTypeId") Long noteTypeId);
+
+    // 批量取消收藏
+    int batchDeleteUserFavorites(@Param("userId") Long userId,
+                                 @Param("noteIds") List<Long> noteIds);
+
+    // 批量更新笔记收藏数（减少）
+    int batchUpdateNoteFavorites(@Param("noteIds") List<Long> noteIds);
 }

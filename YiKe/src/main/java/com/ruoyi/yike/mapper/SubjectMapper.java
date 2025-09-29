@@ -5,12 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
-/**
- * 学科分类Mapper接口
- * 
- * @author ruoyi
- * @date 2025-09-26
- */
 @Mapper
 public interface SubjectMapper
 {

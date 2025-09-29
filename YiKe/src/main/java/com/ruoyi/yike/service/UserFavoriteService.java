@@ -4,12 +4,6 @@ import com.ruoyi.yike.domain.UserFavorite;
 
 import java.util.List;
 
-/**
- * 用户收藏Service接口
- *
- * @author ruoyi
- * @date 2025-09-26
- */
 public interface UserFavoriteService
 {
     /**

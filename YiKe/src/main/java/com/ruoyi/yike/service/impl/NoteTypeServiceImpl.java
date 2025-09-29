@@ -8,12 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * 笔记类型Service业务层处理
- * 
- * @author ruoyi
- * @date 2025-09-26
- */
 @Service
 public class NoteTypeServiceImpl implements NoteTypeService
 {

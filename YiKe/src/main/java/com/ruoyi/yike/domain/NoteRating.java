@@ -2,12 +2,6 @@ package com.ruoyi.yike.domain;
 
 import java.util.Date;
 
-/**
- * @version 1.0
- * 文件类型/说明:
- * 文件创建时间:2025/9/26上午 10:41
- * @Author : SoakLightDust
- */
 public class NoteRating {
     /** 评分ID */
     private Long id;

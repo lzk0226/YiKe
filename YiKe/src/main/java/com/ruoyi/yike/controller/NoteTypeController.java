@@ -11,12 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * 笔记类型Controller
- * 
- * @author ruoyi
- * @date 2025-09-26
- */
 @RestController
 @RequestMapping("/user/types")
 public class NoteTypeController extends BaseController

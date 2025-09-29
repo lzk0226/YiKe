@@ -428,4 +428,63 @@
         WHERE user_id = #{userId}
           AND note_id = #{noteId}
     </delete>
+
+
+    <!-- 用户收藏笔记筛选条件片段 -->
+    <sql id="userFavoriteFilterConditions">
+        WHERE n.status = 1
+        AND uf.user_id = #{userId}
+        <if test="subjectId != null">
+            AND n.subject_id = #{subjectId}
+        </if>
+        <if test="noteTypeId != null">
+            AND n.note_type_id = #{noteTypeId}
+        </if>
+    </sql>
+
+    <!-- 根据用户ID获取收藏的笔记列表 -->
+    <select id="selectFavoriteNotesByUserId" resultMap="NoteCardResultMap">
+        SELECT n.id, n.title, n.description,
+        n.subject_id, n.note_type_id, n.user_id,
+        n.views, n.likes, n.favorites, n.rating, n.rating_count,
+        s.name AS subject_name, s.code AS subject_code,
+        t.name AS note_type_name, t.code AS note_type_code,
+        u.nickname AS author_nickname
+        FROM notes n
+        INNER JOIN user_favorites uf ON n.id = uf.note_id
+        LEFT JOIN subjects s ON n.subject_id = s.id
+        LEFT JOIN note_types t ON n.note_type_id = t.id
+        LEFT JOIN users u ON n.user_id = u.id
+        <include refid="userFavoriteFilterConditions"/>
+        ORDER BY uf.created_at DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 获取用户收藏笔记的总数 -->
+    <select id="selectFavoriteNotesCountByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM notes n
+        INNER JOIN user_favorites uf ON n.id = uf.note_id
+        <include refid="userFavoriteFilterConditions"/>
+    </select>
+
+    <!-- 批量取消收藏 -->
+    <delete id="batchDeleteUserFavorites">
+        DELETE FROM user_favorites
+        WHERE user_id = #{userId}
+        AND note_id IN
+        <foreach collection="noteIds" item="noteId" open="(" separator="," close=")">
+            #{noteId}
+        </foreach>
+    </delete>
+
+    <!-- 批量更新笔记收藏数（减少） -->
+    <update id="batchUpdateNoteFavorites">
+        UPDATE notes
+        SET favorites = GREATEST(0, favorites - 1)
+        WHERE id IN
+        <foreach collection="noteIds" item="noteId" open="(" separator="," close=")">
+            #{noteId}
+        </foreach>
+    </update>
 </mapper>

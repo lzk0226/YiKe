@@ -200,4 +200,39 @@ public class NoteServiceImpl implements NoteService {
     public boolean isNoteFavoritedByUser(Long userId, Long noteId) {
         return noteMapper.isNoteFavoritedByUser(userId, noteId);
     }
+
+    @Override
+    public List<Note> getFavoriteNotesByUserId(Long userId, int page, int pageSize, Long subjectId, Long noteTypeId) {
+        int offset = (page - 1) * pageSize;
+        return noteMapper.selectFavoriteNotesByUserId(userId, offset, pageSize, subjectId, noteTypeId);
+    }
+
+    @Override
+    public int getFavoriteNotesCountByUserId(Long userId, Long subjectId, Long noteTypeId) {
+        return noteMapper.selectFavoriteNotesCountByUserId(userId, subjectId, noteTypeId);
+    }
+
+    @Override
+    @Transactional
+    public boolean batchCancelFavorites(Long userId, List<Long> noteIds) {
+        try {
+            if (noteIds == null || noteIds.isEmpty()) {
+                return false;
+            }
+
+            // 批量删除收藏记录
+            int deleteCount = noteMapper.batchDeleteUserFavorites(userId, noteIds);
+
+            if (deleteCount > 0) {
+                // 批量更新笔记收藏数
+                noteMapper.batchUpdateNoteFavorites(noteIds);
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            System.err.println("批量取消收藏失败：" + e.getMessage());
+            throw new RuntimeException("批量取消收藏失败", e);
+        }
+    }
 }

@@ -4,12 +4,6 @@ import com.ruoyi.yike.domain.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-/**
- * @version 1.0
- * 文件类型/说明:
- * 文件创建时间:2025/9/26上午 10:55
- * @Author : SoakLightDust
- */
 @Mapper
 public interface UserMapper {
 

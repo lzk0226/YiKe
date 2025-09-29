@@ -4,12 +4,6 @@ import com.ruoyi.yike.domain.NoteType;
 
 import java.util.List;
 
-/**
- * 笔记类型Service接口
- * 
- * @author ruoyi
- * @date 2025-09-26
- */
 public interface NoteTypeService
 {
     /**

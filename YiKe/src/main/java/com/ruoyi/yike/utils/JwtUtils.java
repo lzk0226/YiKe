@@ -11,12 +11,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-/**
- * JWT工具类 - 兼容0.9.1版本
- * @Author : SockLightDust
- * @Date : 2025/5/25
- */
 @Component
 public class JwtUtils {
 
