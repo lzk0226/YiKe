@@ -1,0 +1,37 @@
+<div class="note-card" data-id="{{id}}" data-notetypeid="{{noteTypeId}}">
+  <!-- <div class="note-preview">
+    {{icon}}
+  </div> -->
+  <div class="note-content">
+    <h3 class="note-title">{{title}}</h3>
+    <div class="note-meta">
+      <div class="note-author">
+        <!-- <div class="author-avatar">{{authorInitial}}</div> -->
+        <span>作者：{{author}}</span>
+      </div>
+      <div class="note-subject">{{subject}}</div>
+      <!-- 可选：显示笔记类型 -->
+      <div class="note-type">{{noteTypeName}}</div>
+    </div>
+    <p class="note-description">{{description}}</p>
+    <div class="note-stats">
+      <div class="stats-left">
+        <div class="stat-item">
+          <span>❤️</span>
+          <span>{{likes}}</span>
+        </div>
+        <div class="stat-item">
+          <span>👁️</span>
+          <span>{{views}}</span>
+        </div>
+        <div class="stat-item">
+          <span>⭐</span>
+          <span>{{rating}}</span>
+        </div>
+      </div>
+      <button class="view-detail-btn" onclick="event.stopPropagation(); viewNoteDetail({{id}})">
+        查看详情
+      </button>
+    </div>
+  </div>
+</div>

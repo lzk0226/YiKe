@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>发布笔记</title>
+
+  <!-- Quill 样式 -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/newNote.css">
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h2>发布笔记</h2>
+      <p>记录你的学习心得，支持富文本编辑</p>
+    </div>
+
+    <div class="form-group">
+      <label for="noteTitle">笔记标题</label>
+      <input type="text" id="noteTitle" placeholder="请输入标题（最多100字符）" maxlength="100">
+    </div>
+
+    <!-- 学科分类和笔记类型同一行 -->
+    <div class="inline-group">
+      <div class="form-group">
+        <label for="noteSubject">学科分类</label>
+        <select id="noteSubject">
+          <option value="">请选择分类</option>
+          <!-- 选项将通过JS动态加载 -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="noteType">笔记类型</label>
+        <select id="noteType">
+          <option value="">请选择类型</option>
+          <!-- 选项将通过JS动态加载 -->
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="noteDescription">笔记简介</label>
+      <textarea id="noteDescription" placeholder="请简要介绍笔记内容（选填，最多200字符）" maxlength="200" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>笔记内容</label>
+      <div id="editor"></div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn-reset" id="resetBtn">重置</button>
+      <button class="btn-submit" id="submitBtn">发布笔记</button>
+    </div>
+  </div>
+
+  <!-- Quill JS -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script src="js/newNote.js"></script>
+</body>
+
+</html>

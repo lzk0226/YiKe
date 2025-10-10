@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <title>登录 / 注册弹窗</title>
+  <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+  <div class="container"></div>
+
+  <div class="modal">
+    <div class="modal-container">
+      <!-- 登录表单 -->
+      <div class="modal-left login-form">
+        <h1 class="modal-title">登录</h1>
+        <form id="loginForm">
+          <div class="input-block">
+            <label for="email" class="input-label">邮箱 *</label>
+            <input type="email" id="email" placeholder="请输入邮箱" required>
+          </div>
+          <div class="input-block">
+            <label for="password" class="input-label">密码 *</label>
+            <input type="password" id="password" placeholder="请输入密码" required>
+          </div>
+          <div class="modal-buttons">
+            <a href="#" class="forgot-link">忘记密码？</a>
+            <button type="button" class="input-button">登录</button>
+          </div>
+        </form>
+        <p class="sign-up">还没有账号？ <a id="toRegister">立即注册</a></p>
+      </div>
+
+      <!-- 注册表单 -->
+      <div class="modal-left modal-left-register register-form" style="display:none;">
+        <h1 class="modal-title">注册</h1>
+        <form id="registerForm">
+          <div class="input-block">
+            <label for="reg-username" class="input-label">用户名（可选）</label>
+            <input type="text" id="reg-username" placeholder="输入用户名，留空则使用邮箱前缀">
+          </div>
+          <div class="input-block">
+            <label for="reg-email" class="input-label">邮箱 *</label>
+            <input type="email" id="reg-email" placeholder="请输入邮箱" required>
+          </div>
+          <div class="input-block">
+            <label for="reg-password" class="input-label">密码 *</label>
+            <input type="password" id="reg-password" placeholder="请输入密码（至少6位）" required minlength="6">
+          </div>
+          <div class="input-block">
+            <label for="confirm-password" class="input-label">确认密码 *</label>
+            <input type="password" id="confirm-password" placeholder="请再次输入密码" required>
+          </div>
+          <div class="modal-buttons">
+            <button type="button" class="input-button">注册</button>
+          </div>
+        </form>
+        <p class="sign-in">已有账号？ <a id="toLogin">点此登录</a></p>
+      </div>
+
+      <div class="modal-right">
+        <img src="assets/img/3.jpg" alt="">
+      </div>
+      <button class="icon-button close-button">✖</button>
+    </div>
+    <button class="modal-button">点此登录</button>
+  </div>
+
+  <script src="js/login.js"></script>
+
+</body>
+
+</html>

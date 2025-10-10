@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>笔记详情</title>
+  <link rel="stylesheet" href="css/noteDetails.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- 左侧笔记内容 -->
+    <div class="left-panel">
+      <div class="note-card">
+        <div class="loading" id="noteLoading">
+          <div class="spinner"></div>
+          <p>加载中...</p>
+        </div>
+
+        <div id="noteContent" style="display: none;">
+          <div class="note-header">
+            <h1 class="note-title" id="noteTitle">笔记标题</h1>
+            <div class="note-meta">
+              <div class="author-info">
+                <div class="avatar" id="authorAvatar">A</div>
+                <div class="author-details">
+                  <span id="authorName">作者</span>
+                  <div class="note-info">
+                    <span id="subjectName" class="subject-tag"></span>
+                    <span id="noteTypeName" class="note-type-tag"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="time-stats">
+                <span id="noteTime">2024-01-01</span>
+                <div class="stats-info">
+                  <span>👁️ <span id="viewCount">0</span></span>
+                  <span>⭐ <span id="ratingValue">0</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- 简介部分 -->
+            <div class="note-description" id="noteDescription" style="display: none;">
+              <p id="descriptionText"></p>
+            </div>
+          </div>
+
+          <div class="note-content">
+            <div class="rich-content" id="noteBody">笔记内容...</div>
+          </div>
+
+          <div class="note-stats">
+            <div class="stat-item" id="likeBtn" onclick="toggleLike()">
+              <span>👍</span>
+              <span id="likeCount">0</span>
+            </div>
+            <div class="stat-item" id="favoriteBtn" onclick="toggleFavorite()">
+              <span>❤️</span>
+              <span id="favoriteCount">0</span>
+            </div>
+            <div class="stat-item">
+              <span>💬</span>
+              <span id="commentCount">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧评论区 -->
+    <div class="right-panel">
+      <div class="comments-section">
+        <div class="comments-header">
+          评论 (<span id="commentCountHeader">0</span>)
+        </div>
+
+        <div class="comment-form">
+          <textarea id="commentInput" class="comment-input" placeholder="写下你的评论..." maxlength="1000"
+            oninput="updateCharCount()"></textarea>
+          <div class="comment-actions">
+            <span class="char-count" id="charCount">0/1000</span>
+            <button class="btn btn-primary" onclick="submitComment()">发表评论</button>
+          </div>
+        </div>
+
+        <div class="comments-list" id="commentsList">
+          <div class="loading" id="commentsLoading">
+            <div class="spinner"></div>
+            <p>加载评论中...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 图片预览 -->
+  <div class="image-preview" id="imagePreview" onclick="closeImagePreview()">
+    <img id="previewImg" alt="预览图片">
+    <button class="close-btn" onclick="closeImagePreview()">×</button>
+  </div>
+
+  <script src="js/noteDetails.js"></script>
+</body>
+
+</html>
