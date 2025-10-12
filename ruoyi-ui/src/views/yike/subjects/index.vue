@@ -95,7 +95,6 @@
 
     <el-table v-loading="loading" :data="subjectsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
       <el-table-column label="前端使用的代码标识" align="center" prop="code" />
       <el-table-column label="学科名称" align="center" prop="name" />
       <el-table-column label="学科描述" align="center" prop="description" />
@@ -125,7 +124,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"

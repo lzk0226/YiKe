@@ -79,9 +79,15 @@
 
     <el-table v-loading="loading" :data="likesList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
       <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="点赞类型" align="center" prop="targetType" />
+      <el-table-column label="点赞类型" align="center" prop="targetType">
+        <template slot-scope="scope">
+          <span v-if="scope.row.targetType === 'note'">帖子</span>
+          <span v-else-if="scope.row.targetType === 'comment'">评论</span>
+          <span v-else>未知</span>
+        </template>
+      </el-table-column>
+
       <el-table-column label="目标ID" align="center" prop="targetId" />
       <el-table-column label="点赞时间" align="center" prop="createdAt" width="180">
         <template slot-scope="scope">
@@ -107,7 +113,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"

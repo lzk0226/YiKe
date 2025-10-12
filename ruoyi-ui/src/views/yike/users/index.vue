@@ -127,7 +127,6 @@
 
     <el-table v-loading="loading" :data="usersList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
       <el-table-column label="用户名" align="center" prop="username" />
       <el-table-column label="邮箱" align="center" prop="email" />
       <el-table-column label="密码(加密存储)" align="center" prop="password" />
@@ -165,7 +164,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"

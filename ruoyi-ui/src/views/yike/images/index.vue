@@ -87,7 +87,6 @@
 
     <el-table v-loading="loading" :data="imagesList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
       <el-table-column label="笔记ID" align="center" prop="noteId" />
       <el-table-column label="图片URL" align="center" prop="imageUrl" />
       <el-table-column label="图片顺序" align="center" prop="imageOrder" />
@@ -115,7 +114,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"

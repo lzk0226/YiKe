@@ -79,7 +79,6 @@
 
     <el-table v-loading="loading" :data="favoritesList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
       <el-table-column label="用户ID" align="center" prop="userId" />
       <el-table-column label="笔记ID" align="center" prop="noteId" />
       <el-table-column label="收藏时间" align="center" prop="createdAt" width="180">
@@ -106,7 +105,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"

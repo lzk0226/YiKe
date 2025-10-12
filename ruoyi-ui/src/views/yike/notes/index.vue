@@ -75,18 +75,18 @@
       </el-form-item>
       <el-form-item label="创建时间" prop="createdAt">
         <el-date-picker clearable
-          v-model="queryParams.createdAt"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择创建时间">
+                        v-model="queryParams.createdAt"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        placeholder="请选择创建时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="更新时间" prop="updatedAt">
         <el-date-picker clearable
-          v-model="queryParams.updatedAt"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择更新时间">
+                        v-model="queryParams.updatedAt"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        placeholder="请选择更新时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -143,9 +143,19 @@
 
     <el-table v-loading="loading" :data="notesList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
+      <el-table-column label="数据id" align="center" prop="id" />
       <el-table-column label="笔记标题" align="center" prop="title" />
-      <el-table-column label="笔记内容(富文本)" align="center" prop="content" />
+      <el-table-column label="笔记内容预览" align="center" prop="content" width="200">
+        <template slot-scope="scope">
+          <el-button
+            type="text"
+            size="small"
+            @click="handleViewContent(scope.row)"
+          >
+            查看内容
+          </el-button>
+        </template>
+      </el-table-column>
       <el-table-column label="笔记简介" align="center" prop="description" />
       <el-table-column label="学科分类ID" align="center" prop="subjectId" />
       <el-table-column label="笔记类型ID" align="center" prop="noteTypeId" />
@@ -185,7 +195,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -194,14 +204,22 @@
       @pagination="getList"
     />
 
+    <!-- 查看富文本内容对话框 -->
+    <el-dialog title="笔记内容" :visible.sync="contentDialogVisible" width="800px" append-to-body>
+      <div class="rich-text-content" v-html="currentContent"></div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="contentDialogVisible = false">关闭</el-button>
+      </div>
+    </el-dialog>
+
     <!-- 添加或修改笔记对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="笔记标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入笔记标题" />
         </el-form-item>
-        <el-form-item label="笔记内容(富文本)">
-          <editor v-model="form.content" :min-height="192"/>
+        <el-form-item label="笔记内容" prop="content">
+          <editor v-model="form.content" :min-height="400"/>
         </el-form-item>
         <el-form-item label="笔记简介" prop="description">
           <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
@@ -232,18 +250,18 @@
         </el-form-item>
         <el-form-item label="创建时间" prop="createdAt">
           <el-date-picker clearable
-            v-model="form.createdAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择创建时间">
+                          v-model="form.createdAt"
+                          type="date"
+                          value-format="yyyy-MM-dd"
+                          placeholder="请选择创建时间">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="更新时间" prop="updatedAt">
           <el-date-picker clearable
-            v-model="form.updatedAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择更新时间">
+                          v-model="form.updatedAt"
+                          type="date"
+                          value-format="yyyy-MM-dd"
+                          placeholder="请选择更新时间">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -280,6 +298,10 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 富文本内容对话框
+      contentDialogVisible: false,
+      // 当前查看的富文本内容
+      currentContent: '',
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -333,6 +355,11 @@ export default {
         this.total = response.total
         this.loading = false
       })
+    },
+    /** 查看富文本内容 */
+    handleViewContent(row) {
+      this.currentContent = row.content || '暂无内容'
+      this.contentDialogVisible = true
     },
     // 取消按钮
     cancel() {
@@ -415,7 +442,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids
-      this.$modal.confirm('是否确认删除笔记编号为"' + ids + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除笔记编号为"' + ids + '"的数据项?').then(function() {
         return delNotes(ids)
       }).then(() => {
         this.getList()
@@ -431,3 +458,32 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.rich-text-content {
+  padding: 20px;
+  max-height: 600px;
+  overflow-y: auto;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.rich-text-content >>> img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 10px 0;
+}
+
+.rich-text-content >>> p {
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.rich-text-content >>> h1,
+.rich-text-content >>> h2,
+.rich-text-content >>> h3 {
+  margin: 15px 0 10px;
+}
+</style>
