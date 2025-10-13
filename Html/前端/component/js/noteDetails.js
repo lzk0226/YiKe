@@ -13,12 +13,10 @@ window.onload = function () {
   const noteId = params.get("id");
 
   if (!noteId) {
-    // 如果没有笔记ID，显示错误页面
     showError("未找到笔记ID");
     return;
   } else {
     fetchNoteDetail(noteId);
-    // 加载该笔记的评论
     loadComments(noteId);
   }
 };
@@ -44,7 +42,6 @@ function checkLoginStatus() {
           console.log('用户已登录:', currentUser);
           updateCommentFormUI();
 
-          // 如果当前有笔记数据且用户刚登录，获取用户状态
           if (currentNote && currentNote.noteId && oldLoginStatus !== isLoggedIn) {
             fetchNoteUserStatus(currentNote.noteId);
           }
@@ -55,14 +52,12 @@ function checkLoginStatus() {
       }
     }
 
-    // 未登录状态
     const oldLoginStatus = isLoggedIn;
     isLoggedIn = false;
     currentUser = null;
     console.log('用户未登录');
     updateCommentFormUI();
 
-    // 清除用户状态
     if (currentNote && oldLoginStatus !== isLoggedIn) {
       currentNote.hasLiked = false;
       currentNote.hasFavorited = false;
@@ -80,11 +75,9 @@ function checkLoginStatus() {
 // 更新评论表单UI
 function updateCommentFormUI() {
   const commentForm = document.querySelector('.comment-form');
-
   if (!commentForm) return;
 
   if (isLoggedIn) {
-    // 已登录 - 显示正常的评论表单
     commentForm.innerHTML = `
       <textarea id="commentInput" class="comment-input" placeholder="写下你的评论..." maxlength="1000"
         oninput="updateCharCount()"></textarea>
@@ -94,7 +87,6 @@ function updateCommentFormUI() {
       </div>
     `;
   } else {
-    // 未登录 - 显示登录提示
     commentForm.innerHTML = `
       <div class="login-prompt">
         <div class="login-prompt-content">
@@ -113,7 +105,6 @@ function updateCommentFormUI() {
 
 // 跳转到登录页面
 function redirectToLogin() {
-  // 保存当前页面URL，登录后可以返回
   sessionStorage.setItem('returnUrl', window.location.href);
   window.location.href = '/login.html';
 }
@@ -133,7 +124,6 @@ function handleTokenExpired() {
   isLoggedIn = false;
   currentUser = null;
 
-  // 重置笔记状态
   if (currentNote) {
     currentNote.hasLiked = false;
     currentNote.hasFavorited = false;
@@ -177,7 +167,7 @@ function fetchNoteDetail(noteId) {
           content: d.content,
           description: d.description,
           author: d.author?.nickname || "未知作者",
-          authorInitial: d.authorInitial || d.author?.nickname?.charAt(0) || "?",
+          authorInitial: getAuthorInitial(d.author),
           authorAvatar: d.author?.avatar || "",
           subjectName: d.subjectName || d.subject?.name || "",
           noteTypeName: d.noteTypeName || d.noteType?.name || "",
@@ -188,13 +178,12 @@ function fetchNoteDetail(noteId) {
           rating: d.rating || 0,
           ratingCount: d.ratingCount || 0,
           commentCount: d.commentCount || 0,
-          hasLiked: false, // 初始设为false，后续通过API获取
-          hasFavorited: false // 初始设为false，后续通过API获取
+          hasLiked: false,
+          hasFavorited: false
         };
 
         loadNote();
 
-        // 如果用户已登录，获取用户对该笔记的状态
         if (isLoggedIn) {
           fetchNoteUserStatus(noteId);
         }
@@ -206,6 +195,23 @@ function fetchNoteDetail(noteId) {
       console.error("获取笔记详情失败:", err);
       showError("网络错误，请刷新页面重试");
     });
+}
+
+// 获取作者首字母或头像
+function getAuthorInitial(author) {
+  if (!author) return "?";
+
+  // 如果有昵称，获取首字母
+  if (author.nickname) {
+    return author.nickname.charAt(0).toUpperCase();
+  }
+
+  // 如果有用户名，获取首字母
+  if (author.username) {
+    return author.username.charAt(0).toUpperCase();
+  }
+
+  return "?";
 }
 
 // 获取用户对笔记的点赞和收藏状态
@@ -223,7 +229,6 @@ function fetchNoteUserStatus(noteId) {
     .then(res => {
       if (!res.ok) {
         if (res.status === 401) {
-          // Token 无效，清除登录状态
           handleTokenExpired();
           return;
         }
@@ -235,18 +240,15 @@ function fetchNoteUserStatus(noteId) {
       console.log('用户状态数据:', data);
 
       if (data.code === 200 && data.data) {
-        // 更新本地状态
         currentNote.hasLiked = data.data.isLiked || false;
         currentNote.hasFavorited = data.data.isFavorited || false;
 
-        // 更新UI显示
         updateLikeButton();
         updateFavoriteButton();
       }
     })
     .catch(err => {
       console.error('获取用户状态失败:', err);
-      // 不影响主要功能，静默处理错误
     });
 }
 
@@ -258,11 +260,11 @@ function loadNote() {
   // 设置标题
   document.getElementById('noteTitle').textContent = currentNote.title;
 
-  // 优化：直接处理并设置富文本内容，无延迟
+  // 直接处理并设置富文本内容
   const processedContent = processRichContent(currentNote.content);
   document.getElementById('noteBody').innerHTML = processedContent;
 
-  // 设置简介（如果有的话）
+  // 设置简介
   if (currentNote.description && currentNote.description.trim()) {
     document.getElementById('noteDescription').style.display = 'block';
     document.getElementById('descriptionText').textContent = currentNote.description;
@@ -271,10 +273,23 @@ function loadNote() {
   // 设置作者信息
   document.getElementById('authorName').textContent = currentNote.author;
 
+  // 设置作者头像
   const authorAvatar = document.getElementById('authorAvatar');
-  if (currentNote.authorAvatar && currentNote.authorAvatar.startsWith('http')) {
-    authorAvatar.innerHTML = `<img src="${currentNote.authorAvatar}" alt="avatar" class="avatar-img" onerror="this.style.display='none'; this.parentNode.textContent='${currentNote.authorInitial}';" />`;
+  if (currentNote.authorAvatar) {
+    // 检查是否是base64头像或URL头像
+    if (currentNote.authorAvatar.startsWith('data:image/') ||
+      currentNote.authorAvatar.startsWith('http://') ||
+      currentNote.authorAvatar.startsWith('https://') ||
+      currentNote.authorAvatar.startsWith('/')) {
+      // 显示图片头像
+      authorAvatar.innerHTML = `<img src="${currentNote.authorAvatar}" alt="avatar" class="avatar-img" onerror="this.style.display='none'; this.parentNode.textContent='${currentNote.authorInitial}';" />`;
+      authorAvatar.style.background = 'transparent';
+    } else {
+      // 如果不是有效的图片URL，显示首字母
+      authorAvatar.textContent = currentNote.authorInitial;
+    }
   } else {
+    // 没有头像，显示首字母
     authorAvatar.textContent = currentNote.authorInitial;
   }
 
@@ -296,24 +311,21 @@ function loadNote() {
   updateFavoriteButton();
 }
 
-// 优化后的富文本内容处理 - 移除延迟和复杂验证
+// 优化后的富文本内容处理
 function processRichContent(htmlContent) {
   if (!htmlContent) return '';
 
-  // 创建临时DOM来处理HTML内容
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = htmlContent;
 
-  // 处理所有图片 - 简化逻辑，直接处理
+  // 处理所有图片
   const images = tempDiv.querySelectorAll('img');
   images.forEach((img, index) => {
     const src = img.getAttribute('src');
 
     if (src && src.startsWith('data:image/')) {
-      // Base64图片直接处理，无延迟
       processBase64ImageFast(img);
     } else if (src) {
-      // 普通网络图片处理
       processNetworkImage(img);
     }
   });
@@ -321,25 +333,20 @@ function processRichContent(htmlContent) {
   return tempDiv.innerHTML;
 }
 
-// 快速处理Base64图片 - 移除所有延迟和复杂验证
+// 快速处理Base64图片
 function processBase64ImageFast(img) {
   img.classList.add('base64-image');
-
   const originalSrc = img.src;
 
-  // 直接设置点击预览功能，无需额外验证
   img.style.cursor = 'pointer';
   img.onclick = function (e) {
     e.preventDefault();
     previewImage(originalSrc);
   };
 
-  // 简单的错误处理
   img.onerror = function () {
     replaceWithErrorPlaceholder(this, 'Base64图片加载失败');
   };
-
-  // 图片已经有src，浏览器会自动加载，无需额外处理
 }
 
 // 处理网络图片
@@ -374,7 +381,7 @@ function replaceWithErrorPlaceholder(img, errorMsg) {
   img.parentNode.replaceChild(errorDiv, img);
 }
 
-// 切换笔记点赞 - 接入后端接口
+// 切换笔记点赞
 function toggleLike() {
   if (!isLoggedIn) {
     showToast('请先登录后再点赞', 'error');
@@ -392,7 +399,6 @@ function toggleLike() {
     return;
   }
 
-  // 禁用按钮，防止重复点击
   const likeBtn = document.getElementById('likeBtn');
   likeBtn.style.pointerEvents = 'none';
 
@@ -416,22 +422,18 @@ function toggleLike() {
       console.log('点赞结果:', data);
 
       if (data.code === 200) {
-        // 根据后端返回的状态更新本地数据
         const wasLiked = currentNote.hasLiked;
         currentNote.hasLiked = data.data.isLiked;
 
-        // 更新点赞数
         if (currentNote.hasLiked && !wasLiked) {
           currentNote.likes += 1;
         } else if (!currentNote.hasLiked && wasLiked) {
           currentNote.likes -= 1;
         }
 
-        // 更新UI
         document.getElementById('likeCount').textContent = currentNote.likes;
         updateLikeButton();
 
-        // 显示成功消息
         showToast(data.data.message || (currentNote.hasLiked ? '点赞成功' : '取消点赞成功'), 'success');
       } else {
         showToast(data.msg || '点赞失败', 'error');
@@ -446,12 +448,11 @@ function toggleLike() {
       }
     })
     .finally(() => {
-      // 恢复按钮状态
       likeBtn.style.pointerEvents = 'auto';
     });
 }
 
-// 切换收藏 - 接入后端接口
+// 切换收藏
 function toggleFavorite() {
   if (!isLoggedIn) {
     showToast('请先登录后再收藏', 'error');
@@ -469,7 +470,6 @@ function toggleFavorite() {
     return;
   }
 
-  // 禁用按钮，防止重复点击
   const favoriteBtn = document.getElementById('favoriteBtn');
   favoriteBtn.style.pointerEvents = 'none';
 
@@ -493,22 +493,18 @@ function toggleFavorite() {
       console.log('收藏结果:', data);
 
       if (data.code === 200) {
-        // 根据后端返回的状态更新本地数据
         const wasFavorited = currentNote.hasFavorited;
         currentNote.hasFavorited = data.data.isFavorited;
 
-        // 更新收藏数
         if (currentNote.hasFavorited && !wasFavorited) {
           currentNote.favorites += 1;
         } else if (!currentNote.hasFavorited && wasFavorited) {
           currentNote.favorites -= 1;
         }
 
-        // 更新UI
         document.getElementById('favoriteCount').textContent = currentNote.favorites;
         updateFavoriteButton();
 
-        // 显示成功消息
         showToast(data.data.message || (currentNote.hasFavorited ? '收藏成功' : '取消收藏成功'), 'success');
       } else {
         showToast(data.msg || '收藏失败', 'error');
@@ -523,7 +519,6 @@ function toggleFavorite() {
       }
     })
     .finally(() => {
-      // 恢复按钮状态
       favoriteBtn.style.pointerEvents = 'auto';
     });
 }
@@ -541,7 +536,6 @@ function updateLikeButton() {
     likeBtn.title = isLoggedIn ? '点赞' : '登录后可点赞';
   }
 
-  // 如果未登录，设置点击提示
   if (!isLoggedIn) {
     likeBtn.style.opacity = '0.6';
   } else {
@@ -562,7 +556,6 @@ function updateFavoriteButton() {
     favoriteBtn.title = isLoggedIn ? '收藏' : '登录后可收藏';
   }
 
-  // 如果未登录，设置点击提示
   if (!isLoggedIn) {
     favoriteBtn.style.opacity = '0.6';
   } else {
@@ -572,22 +565,18 @@ function updateFavoriteButton() {
 
 // 从后端加载评论
 function loadComments(noteId) {
-  // 安全地获取DOM元素
   const commentsLoading = document.getElementById('commentsLoading');
   const commentsList = document.getElementById('commentsList');
 
-  // 检查DOM元素是否存在
   if (!commentsLoading || !commentsList) {
     console.error('评论相关DOM元素未找到');
     return;
   }
 
-  // 显示加载状态
   commentsLoading.style.display = 'block';
-  commentsList.innerHTML = ''; // 清空现有评论
+  commentsList.innerHTML = '';
 
   if (!noteId) {
-    // 如果没有noteId，显示空状态
     setTimeout(() => {
       if (commentsLoading) commentsLoading.style.display = 'none';
       renderComments();
@@ -595,7 +584,6 @@ function loadComments(noteId) {
     return;
   }
 
-  // 调用后端API获取评论
   fetch(`http://localhost:8080/user/comment/note/${noteId}`)
     .then(res => {
       if (!res.ok) {
@@ -606,7 +594,6 @@ function loadComments(noteId) {
     .then(data => {
       console.log('评论数据:', data);
 
-      // 处理后端返回的评论数据
       if (Array.isArray(data)) {
         comments = data.map(comment => ({
           id: comment.id,
@@ -614,6 +601,7 @@ function loadComments(noteId) {
           userId: comment.userId,
           parentId: comment.parentId,
           author: comment.author?.nickname || `用户${comment.userId}`,
+          authorAvatar: comment.author?.avatar || '',
           content: comment.content,
           time: formatTime(comment.createTime) || "刚刚",
           likeCount: comment.likes || 0,
@@ -624,22 +612,17 @@ function loadComments(noteId) {
         console.warn('后端返回的评论数据格式不正确:', data);
       }
 
-      // 安全地隐藏加载状态并渲染评论
       if (commentsLoading) commentsLoading.style.display = 'none';
       renderComments();
-
-      // 更新评论数量
       updateCommentCount();
 
-      // 默认保持在顶部，不自动滚动到底部
       const commentsSection = document.querySelector('.comments-list');
       if (commentsSection) {
-        commentsSection.scrollTop = 0; // 始终从顶部开始
+        commentsSection.scrollTop = 0;
       }
     })
     .catch(err => {
       console.error('加载评论失败:', err);
-      // 出错时显示空状态
       comments = [];
       if (commentsLoading) commentsLoading.style.display = 'none';
       renderComments();
@@ -651,7 +634,6 @@ function loadComments(noteId) {
 function renderComments() {
   const commentsList = document.getElementById('commentsList');
 
-  // 检查DOM元素是否存在
   if (!commentsList) {
     console.error('评论列表DOM元素未找到');
     return;
@@ -662,29 +644,46 @@ function renderComments() {
     return;
   }
 
-  commentsList.innerHTML = comments.map(comment => `
-    <div class="comment" data-comment-id="${comment.id}">
-      <div class="avatar comment-avatar">${comment.author.charAt(0)}</div>
-      <div class="comment-body">
-        <div class="comment-header">
-          <span class="comment-author">${comment.author}</span>
-          <span class="comment-time">${comment.time}</span>
-        </div>
-        <div class="comment-content">${comment.content}</div>
-        <div class="comment-actions">
-          ${isLoggedIn ?
-      `<button class="comment-action ${comment.hasLiked ? 'liked' : ''}" 
-                onclick="toggleCommentLike(${comment.id})">
-            👍 <span class="like-count">${comment.likeCount}</span>
-          </button>` :
-      `<span class="comment-action disabled" title="登录后可点赞">
-            👍 <span class="like-count">${comment.likeCount}</span>
-          </span>`
+  commentsList.innerHTML = comments.map(comment => {
+    // 获取评论者头像或首字母
+    let avatarHTML;
+    if (comment.authorAvatar && (comment.authorAvatar.startsWith('data:image/') ||
+      comment.authorAvatar.startsWith('http://') ||
+      comment.authorAvatar.startsWith('https://') ||
+      comment.authorAvatar.startsWith('/'))) {
+      // 显示图片头像
+      const initial = comment.author.charAt(0).toUpperCase();
+      avatarHTML = `<img src="${comment.authorAvatar}" alt="avatar" class="avatar-img" 
+                    onerror="this.style.display='none'; this.parentNode.textContent='${initial}';" />`;
+    } else {
+      // 显示首字母
+      avatarHTML = comment.author.charAt(0).toUpperCase();
     }
+
+    return `
+      <div class="comment" data-comment-id="${comment.id}">
+        <div class="avatar comment-avatar">${avatarHTML}</div>
+        <div class="comment-body">
+          <div class="comment-header">
+            <span class="comment-author">${comment.author}</span>
+            <span class="comment-time">${comment.time}</span>
+          </div>
+          <div class="comment-content">${comment.content}</div>
+          <div class="comment-actions">
+            ${isLoggedIn ?
+        `<button class="comment-action ${comment.hasLiked ? 'liked' : ''}" 
+                  onclick="toggleCommentLike(${comment.id})">
+              👍 <span class="like-count">${comment.likeCount}</span>
+            </button>` :
+        `<span class="comment-action disabled" title="登录后可点赞">
+              👍 <span class="like-count">${comment.likeCount}</span>
+            </span>`
+      }
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 // 切换评论点赞
@@ -697,7 +696,6 @@ function toggleCommentLike(commentId) {
   const comment = comments.find(c => c.id === commentId);
   if (!comment) return;
 
-  // 调用后端点赞API
   fetch(`http://localhost:8080/user/comment/like/${commentId}`, {
     method: 'POST',
     headers: {
@@ -714,11 +712,9 @@ function toggleCommentLike(commentId) {
       console.log('评论点赞结果:', data);
 
       if (data.code === 200) {
-        // 成功点赞，更新本地状态
         comment.hasLiked = !comment.hasLiked;
         comment.likeCount += comment.hasLiked ? 1 : -1;
 
-        // 更新页面显示
         const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
         if (commentElement) {
           const likeButton = commentElement.querySelector('.comment-action');
@@ -754,7 +750,6 @@ function updateCharCount() {
 
 // 提交评论
 function submitComment() {
-  // 首先检查登录状态
   if (!isLoggedIn || !currentUser) {
     showToast('请先登录后再发表评论', 'error');
     redirectToLogin();
@@ -780,26 +775,22 @@ function submitComment() {
     return;
   }
 
-  // 记录当前滚动位置，提交新评论后保持位置
   const commentsSection = document.querySelector('.comments-list');
   const currentScrollTop = commentsSection ? commentsSection.scrollTop : 0;
 
-  // 禁用提交按钮，防止重复提交
   const submitBtn = document.querySelector('.comment-actions .btn-primary');
   const originalText = submitBtn.textContent;
   submitBtn.disabled = true;
   submitBtn.textContent = '发表中...';
 
-  // 构造评论数据
   const commentData = {
     noteId: currentNote.noteId,
     userId: currentUser.id,
-    parentId: null, // 暂不支持回复评论，设为null
+    parentId: null,
     content: content,
     likes: 0
   };
 
-  // 调用后端API提交评论
   fetch('http://localhost:8080/user/comment/add', {
     method: 'POST',
     headers: {
@@ -817,11 +808,9 @@ function submitComment() {
       console.log('评论提交结果:', data);
 
       if (data.code === 200) {
-        // 评论成功，清空输入框
         input.value = '';
         updateCharCount();
 
-        // 更新笔记的评论数量
         if (currentNote) {
           currentNote.commentCount++;
           const commentCountElement = document.getElementById('commentCount');
@@ -835,13 +824,9 @@ function submitComment() {
           }
         }
 
-        // 刷新评论列表，新评论会出现在顶部（按时间倒序）
         loadComments(currentNote.noteId);
-
-        // 显示成功提示
         showToast('评论发表成功！', 'success');
 
-        // 新评论提交后，滚动到顶部查看新评论
         setTimeout(() => {
           if (commentsSection) {
             commentsSection.scrollTop = 0;
@@ -857,26 +842,9 @@ function submitComment() {
       showToast('网络错误，请稍后重试', 'error');
     })
     .finally(() => {
-      // 恢复提交按钮状态
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
     });
-}
-
-// 新增：滚动到评论区顶部的函数
-function scrollToCommentsTop() {
-  const commentsSection = document.querySelector('.comments-list');
-  if (commentsSection) {
-    commentsSection.scrollTop = 0;
-  }
-}
-
-// 新增：滚动到评论区底部的函数
-function scrollToCommentsBottom() {
-  const commentsSection = document.querySelector('.comments-list');
-  if (commentsSection) {
-    commentsSection.scrollTop = commentsSection.scrollHeight;
-  }
 }
 
 // 更新评论数量显示
@@ -885,12 +853,10 @@ function updateCommentCount() {
   const commentCountHeader = document.getElementById('commentCountHeader');
   const commentCountElement = document.getElementById('commentCount');
 
-  // 安全地更新DOM元素
   if (commentCountHeader) {
     commentCountHeader.textContent = commentCount;
   }
 
-  // 如果有笔记数据，也更新笔记的评论数
   if (currentNote) {
     currentNote.commentCount = commentCount;
     if (commentCountElement) {
@@ -901,26 +867,21 @@ function updateCommentCount() {
 
 // 添加消息提示功能
 function showToast(message, type = 'info') {
-  // 移除现有的toast
   const existingToast = document.querySelector('.toast');
   if (existingToast) {
     existingToast.remove();
   }
 
-  // 创建新的toast
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.textContent = message;
 
-  // 添加到页面
   document.body.appendChild(toast);
 
-  // 显示动画
   setTimeout(() => {
     toast.classList.add('show');
   }, 100);
 
-  // 自动隐藏
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => {
@@ -936,7 +897,6 @@ function previewImage(src) {
   const previewImg = document.getElementById('previewImg');
   const previewModal = document.getElementById('imagePreview');
 
-  // 显示模态框
   previewModal.style.display = 'flex';
   previewImg.style.opacity = '0';
 
@@ -958,25 +918,8 @@ function closeImagePreview() {
   document.getElementById('previewImg').src = '';
 }
 
-// 添加评论区域滚动到底部的功能
-function scrollCommentsToBottom() {
-  const commentsSection = document.querySelector('.comments-list');
-  if (commentsSection) {
-    commentsSection.scrollTop = commentsSection.scrollHeight;
-  }
-}
-
-// 添加评论区域滚动到顶部的功能
-function scrollCommentsToTop() {
-  const commentsSection = document.querySelector('.comments-list');
-  if (commentsSection) {
-    commentsSection.scrollTop = 0;
-  }
-}
-
-// 键盘事件处理 - 优化版本
+// 键盘事件处理
 document.addEventListener('keydown', function (e) {
-  // Ctrl+Enter 提交评论 - 仅在已登录且聚焦在输入框时
   if (e.ctrlKey && e.key === 'Enter') {
     e.preventDefault();
     const commentInput = document.getElementById('commentInput');
@@ -985,7 +928,6 @@ document.addEventListener('keydown', function (e) {
     }
   }
 
-  // ESC 关闭图片预览
   if (e.key === 'Escape') {
     closeImagePreview();
   }
@@ -1045,12 +987,10 @@ window.addEventListener('storage', function (e) {
     const oldLoginStatus = isLoggedIn;
     checkLoginStatus();
 
-    // 如果登录状态发生变化，重新获取用户状态
     if (oldLoginStatus !== isLoggedIn && currentNote && currentNote.noteId) {
       if (isLoggedIn) {
         fetchNoteUserStatus(currentNote.noteId);
       } else {
-        // 登出时清除状态
         currentNote.hasLiked = false;
         currentNote.hasFavorited = false;
         updateLikeButton();
@@ -1068,38 +1008,8 @@ window.addEventListener('focus', function () {
 // 页面可见性变化时重新检查状态
 document.addEventListener('visibilitychange', function () {
   if (!document.hidden && isLoggedIn && currentNote && currentNote.noteId) {
-    // 页面重新可见时，重新获取最新状态
     setTimeout(() => {
       fetchNoteUserStatus(currentNote.noteId);
     }, 500);
   }
 });
-
-// 错误处理：全局错误捕获
-window.addEventListener('error', function (e) {
-  console.error('全局错误:', e.error);
-  // 可以在这里添加错误上报逻辑
-});
-
-// 图片右键菜单禁用（可选）
-document.addEventListener('contextmenu', function (e) {
-  if (e.target.tagName === 'IMG') {
-    e.preventDefault();
-  }
-});
-
-// 移动端触摸优化
-let touchStartY = 0;
-document.addEventListener('touchstart', function (e) {
-  touchStartY = e.touches[0].clientY;
-}, { passive: true });
-
-document.addEventListener('touchmove', function (e) {
-  const touchCurrentY = e.touches[0].clientY;
-  const touchDiff = touchStartY - touchCurrentY;
-
-  // 如果是在图片预览模式，允许缩放手势
-  if (document.getElementById('imagePreview').style.display === 'flex') {
-    e.stopPropagation();
-  }
-}, { passive: true });
