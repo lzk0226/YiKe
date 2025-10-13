@@ -5,34 +5,56 @@
 
 <mapper namespace="com.ruoyi.yike.mapper.CommentMapper">
 
-    <!-- 查询所有评论 -->
-    <select id="selectAllComments" resultType="com.ruoyi.yike.domain.Comment">
-        SELECT id, note_id AS noteId, user_id AS userId, parent_id AS parentId,
-               content, likes
-        FROM comments
+    <!-- 评论结果映射（包含用户信息） -->
+    <resultMap id="CommentWithUserResultMap" type="com.ruoyi.yike.domain.Comment">
+        <id property="id" column="id"/>
+        <result property="noteId" column="note_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="content" column="content"/>
+        <result property="likes" column="likes"/>
+
+        <!-- 关联用户信息 -->
+        <association property="user" javaType="com.ruoyi.yike.domain.User">
+            <id property="id" column="user_id"/>
+            <result property="username" column="username"/>
+            <result property="nickname" column="nickname"/>
+            <result property="avatar" column="avatar"/>
+        </association>
+    </resultMap>
+
+    <!-- 查询所有评论（关联用户信息） -->
+    <select id="selectAllComments" resultMap="CommentWithUserResultMap">
+        SELECT c.id, c.note_id, c.user_id, c.parent_id, c.content, c.likes,
+               u.username, u.nickname, u.avatar
+        FROM comments c
+                 LEFT JOIN users u ON c.user_id = u.id
+        ORDER BY c.id DESC
     </select>
 
-    <!-- 根据笔记ID查询评论列表 -->
-    <select id="selectCommentsByNoteId" resultType="com.ruoyi.yike.domain.Comment">
-        SELECT id, note_id AS noteId, user_id AS userId, parent_id AS parentId,
-               content, likes
-        FROM comments
-        WHERE note_id = #{noteId}
-        ORDER BY id ASC
+    <!-- 根据笔记ID查询评论列表（关联用户信息） -->
+    <select id="selectCommentsByNoteId" resultMap="CommentWithUserResultMap">
+        SELECT c.id, c.note_id, c.user_id, c.parent_id, c.content, c.likes, c.created_at,
+               u.username, u.nickname, u.avatar
+        FROM comments c
+                 LEFT JOIN users u ON c.user_id = u.id
+        WHERE c.note_id = #{noteId}
+        ORDER BY c.created_at DESC
     </select>
 
-    <!-- 根据ID查询单条评论 -->
-    <select id="selectCommentById" resultType="com.ruoyi.yike.domain.Comment">
-        SELECT id, note_id AS noteId, user_id AS userId, parent_id AS parentId,
-               content, likes
-        FROM comments
-        WHERE id = #{id}
+    <!-- 根据ID查询单条评论（关联用户信息） -->
+    <select id="selectCommentById" resultMap="CommentWithUserResultMap">
+        SELECT c.id, c.note_id, c.user_id, c.parent_id, c.content, c.likes,
+               u.username, u.nickname, u.avatar
+        FROM comments c
+                 LEFT JOIN users u ON c.user_id = u.id
+        WHERE c.id = #{id}
     </select>
 
     <!-- 新增评论 -->
     <insert id="insertComment" parameterType="com.ruoyi.yike.domain.Comment" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO comments (note_id, user_id, parent_id, content, likes)
-        VALUES (#{noteId}, #{userId}, #{parentId}, #{content}, #{likes})
+        INSERT INTO comments (note_id, user_id, parent_id, content, likes, created_at)
+        VALUES (#{noteId}, #{userId}, #{parentId}, #{content}, #{likes}, NOW())
     </insert>
 
     <!-- 更新评论点赞数 -->

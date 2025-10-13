@@ -8,6 +8,9 @@ let currentUser = null;
 let myNotesData = [];
 let favoritesData = [];
 
+// 存储当前选择的头像（base64格式）
+let selectedAvatarBase64 = null;
+
 // 获取认证头信息
 function getAuthHeaders() {
   const token = localStorage.getItem('accessToken');
@@ -71,10 +74,12 @@ function updateProfileForm(user) {
 
   // 更新头像预览
   const avatarPreview = document.getElementById('avatarPreview');
-  const defaultAvatar = '/assets/img/2.jpg'; // 默认头像路径，与导航栏一致
+  const defaultAvatar = '/assets/img/2.jpg';
   avatarPreview.src = user.avatar ? user.avatar : defaultAvatar;
-}
 
+  // 重置选择的头像
+  selectedAvatarBase64 = null;
+}
 
 // 加载我的笔记
 async function loadMyNotes() {
@@ -82,7 +87,6 @@ async function loadMyNotes() {
     const userId = getCurrentUserId();
     if (!userId) return;
 
-    // 调用获取个人笔记的接口
     const response = await fetch(`${API_BASE}/user/notes/my/cards?userId=${userId}&page=1&pageSize=20`, {
       headers: getAuthHeaders()
     });
@@ -120,7 +124,6 @@ async function loadMyNotes() {
 // 加载我的收藏
 async function loadMyFavorites() {
   try {
-    // 调用新的获取收藏列表接口
     const response = await fetch(`${API_BASE}/user/notes/favorites?page=1&pageSize=20`, {
       headers: getAuthHeaders()
     });
@@ -130,7 +133,6 @@ async function loadMyFavorites() {
       if (result.code === 200) {
         const favorites = result.data.list || [];
 
-        // 转换数据格式
         favoritesData = favorites.map(note => ({
           id: note.id,
           title: note.title,
@@ -158,7 +160,6 @@ async function loadMyFavorites() {
   }
 }
 
-
 // 根据学科获取图标
 function getSubjectIcon(subjectName) {
   const iconMap = {
@@ -175,43 +176,41 @@ function getSubjectIcon(subjectName) {
   return iconMap[subjectName] || '📝';
 }
 
-// 渲染笔记函数（保持不变，但需要调整操作函数）
+// 渲染笔记函数
 function renderNotes(notes, containerId, showActions = true) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
   container.innerHTML = notes.map(note => `
-        <div class="note-card">
-          <div class="note-content">
-            <div class="note-title">${note.title}</div>
-            <div class="note-meta">
-              <div class="note-author">
-                作者：${note.author}
-              </div>
-              <div class="note-subject">${note.subject}</div>
-            </div>
-            <div class="note-description">${note.description}</div>
-            <div class="note-stats">
-              <div>
-                <span>👍 ${note.likes}</span>
-                <span style="margin-left: 10px;">👁️ ${note.views}</span>
-                <span style="margin-left: 10px;">⭐ ${note.rating}</span>
-              </div>
-              <div class="note-actions">
-                ${showActions && note.isMine
+    <div class="note-card">
+      <div class="note-content">
+        <div class="note-title">${note.title}</div>
+        <div class="note-meta">
+          <div class="note-author">作者：${note.author}</div>
+          <div class="note-subject">${note.subject}</div>
+        </div>
+        <div class="note-description">${note.description}</div>
+        <div class="note-stats">
+          <div>
+            <span>👍 ${note.likes}</span>
+            <span style="margin-left: 10px;">👁️ ${note.views}</span>
+            <span style="margin-left: 10px;">⭐ ${note.rating}</span>
+          </div>
+          <div class="note-actions">
+            ${showActions && note.isMine
       ? `<button class="action-btn" onclick="editNote(${note.id})">编辑</button>
-                   <button class="action-btn secondary" onclick="deleteNote(${note.id})">删除</button>`
+                 <button class="action-btn secondary" onclick="deleteNote(${note.id})">删除</button>`
       : `<button class="action-btn" onclick="viewNote(${note.id})">查看</button>
-                   ${!note.isMine ? `<button class="action-btn secondary" onclick="unfavoriteNote(${note.id})">取消收藏</button>` : ''}`
+                 ${!note.isMine ? `<button class="action-btn secondary" onclick="unfavoriteNote(${note.id})">取消收藏</button>` : ''}`
     }
-              </div>
-            </div>
           </div>
         </div>
-      `).join('');
+      </div>
+    </div>
+  `).join('');
 }
 
-// 标签页切换（保持不变）
+// 标签页切换
 function initTabs() {
   const tabBtns = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
@@ -220,22 +219,19 @@ function initTabs() {
     btn.addEventListener('click', () => {
       const targetTab = btn.getAttribute('data-tab');
 
-      // 移除所有活跃状态
       tabBtns.forEach(b => b.classList.remove('active'));
       tabContents.forEach(c => c.classList.remove('active'));
 
-      // 设置新的活跃状态
       btn.classList.add('active');
       document.getElementById(targetTab).classList.add('active');
     });
   });
 }
 
-// 排序功能（修改为重新加载数据）
+// 排序功能
 function initSorting() {
   document.addEventListener('click', (e) => {
     if (e.target.classList.contains('sort-btn')) {
-      // 移除同组内所有活跃状态
       const sortGroup = e.target.closest('.sort-options');
       sortGroup.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
       e.target.classList.add('active');
@@ -243,7 +239,6 @@ function initSorting() {
       const sortType = e.target.getAttribute('data-sort');
       const activeTab = document.querySelector('.tab-content.active').id;
 
-      // 根据排序类型重新加载数据
       if (activeTab === 'my-notes') {
         loadMyNotesWithSort(sortType);
       } else {
@@ -255,10 +250,8 @@ function initSorting() {
 
 // 按排序加载我的笔记
 async function loadMyNotesWithSort(sortType) {
-  // 这里可以添加排序参数到API调用
   await loadMyNotes();
 
-  // 前端排序（如果后端不支持）
   let sortedData = [...myNotesData];
   switch (sortType) {
     case 'latest': sortedData.sort((a, b) => b.id - a.id); break;
@@ -270,35 +263,24 @@ async function loadMyNotesWithSort(sortType) {
   renderNotes(sortedData, 'myNotesGrid', true);
 }
 
-// 按排序加载我的收藏（使用新接口）
+// 按排序加载我的收藏
 async function loadMyFavoritesWithSort(sortType) {
   await loadMyFavorites();
 
-  // 前端排序
   let sortedData = [...favoritesData];
   switch (sortType) {
-    case 'latest':
-      // 最新收藏已经是后端默认排序
-      break;
-    case 'views':
-      sortedData.sort((a, b) => b.views - a.views);
-      break;
-    case 'rating':
-      sortedData.sort((a, b) => b.rating - a.rating);
-      break;
-    case 'likes':
-      sortedData.sort((a, b) => b.likes - a.likes);
-      break;
+    case 'latest': break;
+    case 'views': sortedData.sort((a, b) => b.views - a.views); break;
+    case 'rating': sortedData.sort((a, b) => b.rating - a.rating); break;
+    case 'likes': sortedData.sort((a, b) => b.likes - a.likes); break;
   }
 
   renderNotes(sortedData, 'favoritesGrid', false);
 }
 
-
-// 笔记操作函数（对接后端）
+// 笔记操作函数
 async function editNote(noteId) {
   try {
-    // 跳转到编辑页面或打开编辑模态框
     window.location.href = `../component/newNote.html?id=${noteId}`;
   } catch (error) {
     console.error('编辑笔记失败:', error);
@@ -319,7 +301,6 @@ async function deleteNote(noteId) {
       const result = await response.json();
       if (result.code === 200) {
         alert('笔记删除成功');
-        // 重新加载我的笔记
         await loadMyNotes();
       } else {
         throw new Error(result.msg || '删除失败');
@@ -334,16 +315,13 @@ async function deleteNote(noteId) {
 }
 
 async function viewNote(noteId) {
-  // 跳转到笔记详情页面
   window.location.href = `/component/noteDetails.html?id=${noteId}`;
 }
 
-// 取消收藏（使用新接口）
 async function unfavoriteNote(noteId) {
   if (!confirm('确定要取消收藏这篇笔记吗？')) return;
 
   try {
-    // 调用后端的点赞/收藏toggle接口
     const response = await fetch(`${API_BASE}/user/notes/favorite/${noteId}`, {
       method: 'POST',
       headers: getAuthHeaders()
@@ -353,7 +331,6 @@ async function unfavoriteNote(noteId) {
       const result = await response.json();
       if (result.code === 200) {
         alert('取消收藏成功');
-        // 重新加载我的收藏
         await loadMyFavorites();
       } else {
         throw new Error(result.msg || '取消收藏失败');
@@ -367,7 +344,7 @@ async function unfavoriteNote(noteId) {
   }
 }
 
-// 保存个人资料
+// 保存个人资料（支持头像上传）
 async function saveUserProfile(userData) {
   try {
     const response = await fetch(`${API_BASE}/user/update`, {
@@ -382,6 +359,7 @@ async function saveUserProfile(userData) {
         // 更新本地存储的用户信息
         const updatedUser = { ...currentUser, ...userData };
         localStorage.setItem('user', JSON.stringify(updatedUser));
+        currentUser = updatedUser;
 
         // 更新导航栏显示
         if (window.navbarInstance) {
@@ -435,14 +413,13 @@ function loadNavbarComponent() {
 }
 
 function showFallbackNavbar() {
-  // 导航栏组件加载失败，不显示默认导航栏
   console.error('导航栏组件加载失败');
 }
 
 function initializeNavbar() {
   if (window.NavbarComponent) {
     const navbar = new NavbarComponent({
-      isLoggedIn: true, // 个人中心页面默认已登录
+      isLoggedIn: true,
       onNavigate: (section, href) => {
         if (href.includes('.html')) {
           window.location.href = href;
@@ -457,7 +434,6 @@ function initializeNavbar() {
       onUserAction: (action) => {
         switch (action) {
           case 'profile':
-            // 已在个人中心，无需跳转
             break;
           case 'my-notes':
             alert('打开我的笔记');
@@ -479,6 +455,44 @@ function initializeNavbar() {
   }
 }
 
+// 压缩图片（将大图压缩到合适大小）
+function compressImage(file, maxWidth = 800, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      const img = new Image();
+
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // 计算缩放比例
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // 转换为base64
+        const base64 = canvas.toDataURL('image/jpeg', quality);
+        resolve(base64);
+      };
+
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 // 页面初始化
 document.addEventListener('DOMContentLoaded', async function () {
@@ -508,18 +522,40 @@ document.addEventListener('DOMContentLoaded', async function () {
   // 加载我的收藏
   await loadMyFavorites();
 
-  // 头像上传预览（保持不变）
+  // 头像上传预览和处理
   const avatarInput = document.getElementById('avatarInput');
   const avatarPreview = document.getElementById('avatarPreview');
 
-  avatarInput.addEventListener('change', function (e) {
+  avatarInput.addEventListener('change', async function (e) {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        avatarPreview.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+      // 检查文件类型
+      if (!file.type.startsWith('image/')) {
+        alert('请选择图片文件！');
+        return;
+      }
+
+      // 检查文件大小（限制5MB）
+      if (file.size > 5 * 1024 * 1024) {
+        alert('图片大小不能超过5MB！');
+        return;
+      }
+
+      try {
+        // 压缩图片并转换为base64
+        const base64 = await compressImage(file, 400, 0.8);
+
+        // 更新预览
+        avatarPreview.src = base64;
+
+        // 保存到临时变量
+        selectedAvatarBase64 = base64;
+
+        console.log('头像已选择，大小:', (base64.length / 1024).toFixed(2), 'KB');
+      } catch (error) {
+        console.error('处理图片失败:', error);
+        alert('处理图片失败，请重试');
+      }
     }
   });
 
@@ -535,19 +571,21 @@ document.addEventListener('DOMContentLoaded', async function () {
       saveProfileBtn.textContent = '保存资料';
       saveProfileBtn.classList.add('edit-mode');
 
-      // 启用所有输入框
+      // 启用所有输入框（邮箱保持禁用）
       formInputs.forEach(input => {
-        input.disabled = false;
+        if (input.id !== 'email') {
+          input.disabled = false;
+        }
       });
     } else {
       // 保存并切换回查看模式
-      const nickname = document.getElementById('nickname').value;
-      const email = document.getElementById('email').value;
-      const school = document.getElementById('school').value;
-      const major = document.getElementById('major').value;
+      const nickname = document.getElementById('nickname').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const school = document.getElementById('school').value.trim();
+      const major = document.getElementById('major').value.trim();
 
-      if (!nickname || !email) {
-        alert('请填写必要信息');
+      if (!nickname) {
+        alert('昵称不能为空');
         return;
       }
 
@@ -560,6 +598,11 @@ document.addEventListener('DOMContentLoaded', async function () {
           major: major
         };
 
+        // 如果选择了新头像，添加到更新数据中
+        if (selectedAvatarBase64) {
+          userData.avatar = selectedAvatarBase64;
+        }
+
         await saveUserProfile(userData);
 
         isEditMode = false;
@@ -570,6 +613,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         formInputs.forEach(input => {
           input.disabled = true;
         });
+
+        // 清空临时头像
+        selectedAvatarBase64 = null;
 
         alert('资料已保存！');
       } catch (error) {
