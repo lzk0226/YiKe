@@ -95,7 +95,7 @@
 
     <el-table v-loading="loading" :data="typesList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="前端使用的代码标识" align="center" prop="code" />
+<!--      <el-table-column label="前端使用的代码标识" align="center" prop="code" />-->
       <el-table-column label="类型名称" align="center" prop="name" />
       <el-table-column label="类型描述" align="center" prop="description" />
       <el-table-column label="排序权重" align="center" prop="sortOrder" />

@@ -153,6 +153,12 @@
         <el-form-item label="评论点赞数" prop="likes">
           <el-input v-model="form.likes" placeholder="请输入评论点赞数" />
         </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="form.status">
+            <el-radio :label="1">启用</el-radio>
+            <el-radio :label="0">停用</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="评论时间" prop="createdAt">
           <el-date-picker clearable
             v-model="form.createdAt"

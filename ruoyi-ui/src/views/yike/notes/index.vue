@@ -248,6 +248,12 @@
         <el-form-item label="评分人数" prop="ratingCount">
           <el-input v-model="form.ratingCount" placeholder="请输入评分人数" />
         </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="form.status">
+            <el-radio :label="1">正常</el-radio>
+            <el-radio :label="0">下架</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="创建时间" prop="createdAt">
           <el-date-picker clearable
                           v-model="form.createdAt"
