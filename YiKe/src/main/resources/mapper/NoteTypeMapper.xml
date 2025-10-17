@@ -10,19 +10,23 @@
         <result property="code" column="code"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
+<!--        <result property="status" column="status"/>-->
     </resultMap>
 
     <sql id="selectNoteType">
-        SELECT id, code, name, description FROM note_types
+        SELECT id, code, name, description, status FROM note_types
     </sql>
 
     <select id="selectNoteTypeList" parameterType="com.ruoyi.yike.domain.NoteType" resultMap="NoteTypeResult">
         <include refid="selectNoteType"/>
         <where>
+            <!-- 只查询启用状态的笔记类型 -->
+            AND status = 1
             <if test="code != null and code != ''"> AND code = #{code}</if>
             <if test="name != null and name != ''"> AND name LIKE CONCAT('%', #{name}, '%')</if>
             <if test="description != null and description != ''"> AND description LIKE CONCAT('%', #{description}, '%')</if>
         </where>
+        ORDER BY sort_order ASC, id ASC
     </select>
 
     <select id="selectNoteTypeById" parameterType="Long" resultMap="NoteTypeResult">

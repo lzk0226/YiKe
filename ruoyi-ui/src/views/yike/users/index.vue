@@ -33,14 +33,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="头像URL" prop="avatar">
-        <el-input
-          v-model="queryParams.avatar"
-          placeholder="请输入头像URL"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="学校" prop="school">
         <el-input
           v-model="queryParams.school"
@@ -59,18 +51,18 @@
       </el-form-item>
       <el-form-item label="创建时间" prop="createdAt">
         <el-date-picker clearable
-          v-model="queryParams.createdAt"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择创建时间">
+                        v-model="queryParams.createdAt"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        placeholder="请选择创建时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="更新时间" prop="updatedAt">
         <el-date-picker clearable
-          v-model="queryParams.updatedAt"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择更新时间">
+                        v-model="queryParams.updatedAt"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        placeholder="请选择更新时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -131,7 +123,12 @@
       <el-table-column label="邮箱" align="center" prop="email" />
       <el-table-column label="密码(加密存储)" align="center" prop="password" />
       <el-table-column label="昵称" align="center" prop="nickname" />
-      <el-table-column label="头像URL" align="center" prop="avatar" />
+      <el-table-column label="头像" align="center" prop="avatar" width="80">
+        <template slot-scope="scope">
+          <img v-if="scope.row.avatar" :src="scope.row.avatar" alt="头像" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" />
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
       <el-table-column label="学校" align="center" prop="school" />
       <el-table-column label="专业" align="center" prop="major" />
       <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
@@ -182,36 +179,39 @@
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="form.email" placeholder="请输入邮箱" />
         </el-form-item>
-        <el-form-item label="密码(加密存储)" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码(加密存储)" />
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="form.password" type="password" placeholder="请输入密码" />
         </el-form-item>
         <el-form-item label="昵称" prop="nickname">
           <el-input v-model="form.nickname" placeholder="请输入昵称" />
         </el-form-item>
-        <el-form-item label="头像URL" prop="avatar">
-          <el-input v-model="form.avatar" placeholder="请输入头像URL" />
+        <el-form-item label="头像" prop="avatar">
+          <div class="avatar-upload-container">
+            <div class="avatar-preview" v-if="form.avatar">
+              <img :src="form.avatar" alt="头像预览" />
+              <div class="avatar-actions">
+                <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="removeAvatar"></el-button>
+              </div>
+            </div>
+            <el-upload
+              v-else
+              class="avatar-uploader"
+              action="#"
+              :show-file-list="false"
+              :before-upload="beforeAvatarUpload"
+              :http-request="handleAvatarUpload"
+              accept="image/*"
+            >
+              <i class="el-icon-plus avatar-uploader-icon"></i>
+              <div class="upload-hint">点击上传头像</div>
+            </el-upload>
+          </div>
         </el-form-item>
         <el-form-item label="学校" prop="school">
           <el-input v-model="form.school" placeholder="请输入学校" />
         </el-form-item>
         <el-form-item label="专业" prop="major">
           <el-input v-model="form.major" placeholder="请输入专业" />
-        </el-form-item>
-        <el-form-item label="创建时间" prop="createdAt">
-          <el-date-picker clearable
-            v-model="form.createdAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择创建时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="更新时间" prop="updatedAt">
-          <el-date-picker clearable
-            v-model="form.updatedAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择更新时间">
-          </el-date-picker>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -229,25 +229,15 @@ export default {
   name: "Users",
   data() {
     return {
-      // 遮罩层
       loading: true,
-      // 选中数组
       ids: [],
-      // 非单个禁用
       single: true,
-      // 非多个禁用
       multiple: true,
-      // 显示搜索条件
       showSearch: true,
-      // 总条数
       total: 0,
-      // 用户表格数据
       usersList: [],
-      // 弹出层标题
       title: "",
-      // 是否显示弹出层
       open: false,
-      // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
@@ -262,9 +252,7 @@ export default {
         updatedAt: null,
         status: null
       },
-      // 表单参数
       form: {},
-      // 表单校验
       rules: {
         username: [
           { required: true, message: "用户名不能为空", trigger: "blur" }
@@ -273,7 +261,7 @@ export default {
           { required: true, message: "邮箱不能为空", trigger: "blur" }
         ],
         password: [
-          { required: true, message: "密码(加密存储)不能为空", trigger: "blur" }
+          { required: true, message: "密码不能为空", trigger: "blur" }
         ],
       }
     }
@@ -291,12 +279,10 @@ export default {
         this.loading = false
       })
     },
-    // 取消按钮
     cancel() {
       this.open = false
       this.reset()
     },
-    // 表单重置
     reset() {
       this.form = {
         id: null,
@@ -313,29 +299,24 @@ export default {
       }
       this.resetForm("form")
     },
-    /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageNum = 1
       this.getList()
     },
-    /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
       this.handleQuery()
     },
-    // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
-    /** 新增按钮操作 */
     handleAdd() {
       this.reset()
       this.open = true
       this.title = "添加用户"
     },
-    /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
       const id = row.id || this.ids
@@ -345,7 +326,6 @@ export default {
         this.title = "修改用户"
       })
     },
-    /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
@@ -365,7 +345,6 @@ export default {
         }
       })
     },
-    /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids
       this.$modal.confirm('是否确认删除用户编号为"' + ids + '"的数据项？').then(function() {
@@ -375,12 +354,128 @@ export default {
         this.$modal.msgSuccess("删除成功")
       }).catch(() => {})
     },
-    /** 导出按钮操作 */
     handleExport() {
       this.download('yike/users/export', {
         ...this.queryParams
       }, `users_${new Date().getTime()}.xlsx`)
+    },
+
+    // 头像上传前的验证
+    beforeAvatarUpload(file) {
+      const isImage = file.type.startsWith('image/')
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isImage) {
+        this.$message.error('上传头像只能是图片格式!')
+        return false
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像大小不能超过 2MB!')
+        return false
+      }
+      return true
+    },
+
+    // 处理头像上传（转换为base64）
+    handleAvatarUpload(options) {
+      const file = options.file
+      const reader = new FileReader()
+
+      reader.onload = (e) => {
+        // 将图片转换为base64并保存到表单
+        this.form.avatar = e.target.result
+        this.$message.success('头像上传成功')
+      }
+
+      reader.onerror = () => {
+        this.$message.error('头像读取失败')
+      }
+
+      reader.readAsDataURL(file)
+    },
+
+    // 删除头像
+    removeAvatar() {
+      this.$confirm('确定要删除头像吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.form.avatar = null
+        this.$message.success('头像已删除')
+      }).catch(() => {})
     }
   }
 }
 </script>
+
+<style scoped>
+.avatar-upload-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-preview {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #dcdfe6;
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-actions {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.avatar-preview:hover .avatar-actions {
+  opacity: 1;
+}
+
+.avatar-uploader {
+  border: 1px dashed #d9d9d9;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s;
+}
+
+.avatar-uploader:hover {
+  border-color: #409eff;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+}
+
+.upload-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8c939d;
+}
+</style>
