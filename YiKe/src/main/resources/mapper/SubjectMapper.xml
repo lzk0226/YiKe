@@ -25,6 +25,7 @@
     <select id="selectSubjectList" parameterType="com.ruoyi.yike.domain.Subject" resultMap="SubjectResult">
         <include refid="Base_Select"/>
         <where>
+            AND status = 1
             <if test="code != null and code != ''">AND code = #{code}</if>
             <if test="name != null and name != ''">AND name LIKE CONCAT('%', #{name}, '%')</if>
             <if test="description != null and description != ''">AND description LIKE CONCAT('%', #{description}, '%')</if>
