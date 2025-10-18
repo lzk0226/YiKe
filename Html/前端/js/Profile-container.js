@@ -531,13 +531,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (file) {
       // 检查文件类型
       if (!file.type.startsWith('image/')) {
-        alert('请选择图片文件！');
+        alert('请选择图片文件!');
         return;
       }
 
-      // 检查文件大小（限制5MB）
+      // 检查文件大小(限制5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('图片大小不能超过5MB！');
+        alert('图片大小不能超过5MB!');
         return;
       }
 
@@ -551,10 +551,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         // 保存到临时变量
         selectedAvatarBase64 = base64;
 
-        console.log('头像已选择，大小:', (base64.length / 1024).toFixed(2), 'KB');
+        console.log('头像已选择,大小:', (base64.length / 1024).toFixed(2), 'KB');
       } catch (error) {
         console.error('处理图片失败:', error);
-        alert('处理图片失败，请重试');
+        alert('处理图片失败,请重试');
       }
     }
   });
@@ -571,7 +571,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       saveProfileBtn.textContent = '保存资料';
       saveProfileBtn.classList.add('edit-mode');
 
-      // 启用所有输入框（邮箱保持禁用）
+      // 启用所有输入框(邮箱保持禁用)
       formInputs.forEach(input => {
         if (input.id !== 'email') {
           input.disabled = false;
@@ -598,7 +598,7 @@ document.addEventListener('DOMContentLoaded', async function () {
           major: major
         };
 
-        // 如果选择了新头像，添加到更新数据中
+        // 如果选择了新头像,添加到更新数据中
         if (selectedAvatarBase64) {
           userData.avatar = selectedAvatarBase64;
         }
@@ -617,10 +617,25 @@ document.addEventListener('DOMContentLoaded', async function () {
         // 清空临时头像
         selectedAvatarBase64 = null;
 
-        alert('资料已保存！');
+        alert('资料已保存!');
       } catch (error) {
         alert('保存失败: ' + error.message);
       }
     }
   });
+
+  // FAB 按钮功能
+  const fabButton = document.querySelector('.fab');
+  if (fabButton) {
+    // 显示 FAB 按钮(因为已确认用户已登录)
+    fabButton.style.display = 'flex';
+    fabButton.style.opacity = '1';
+    fabButton.style.visibility = 'visible';
+
+    // 点击事件
+    fabButton.addEventListener('click', function () {
+      // 跳转到新建笔记页面
+      window.location.href = '/component/newNote.html';
+    });
+  }
 });

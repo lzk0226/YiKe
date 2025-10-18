@@ -457,3 +457,100 @@ body::before {
     grid-template-columns: 1fr;
   }
 }
+
+/* 响应式设计 */
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 0 15px;
+  }
+
+  .tab-navigation {
+    flex-wrap: wrap;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .sort-options {
+    flex-wrap: wrap;
+  }
+
+  .notes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    padding-top: 70px;
+  }
+
+  .container {
+    margin: 10px auto;
+    padding: 0 10px;
+  }
+
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Floating Action Button - 黑白风格 */
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  background: white;
+  color: black;
+  border: 3px solid #000;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 99;
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+}
+
+/* 自绘笔记图标 */
+.fab::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background: black;
+  mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"/></svg>') center/contain no-repeat;
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"/></svg>') center/contain no-repeat;
+  mask-size: contain;
+  -webkit-mask-size: contain;
+}
+
+.fab:hover {
+  transform: scale(1.1) rotate(5deg);
+  background: #f5f5f5;
+  border-color: #333;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.fab:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 当显示时的样式 */
+.fab.show {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+}

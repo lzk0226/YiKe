@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ruoyi.yike.mapper.RankingMapper">
+
+    <!-- 热门笔记 -->
+    <select id="getHotNotes" resultType="com.ruoyi.yike.DTO.HotNoteDTO">
+        SELECT
+            n.id, n.title, n.description,
+            s.name AS subjectName, s.code AS subjectCode,
+            nt.name AS noteTypeName,
+            u.id AS authorId, u.username AS authorName, u.nickname AS authorNickname, u.avatar AS authorAvatar,
+            n.views, n.likes, n.favorites, n.rating, n.rating_count AS ratingCount,
+            (n.views * 1 + n.likes * 5 + n.favorites * 3 + n.rating * 100) AS heatScore,
+            n.created_at AS createdAt
+        FROM notes n
+                 JOIN users u ON n.user_id = u.id
+                 JOIN subjects s ON n.subject_id = s.id
+                 JOIN note_types nt ON n.note_type_id = nt.id
+        WHERE n.status = 1 AND u.status = 1 AND s.status = 1 AND nt.status = 1
+        ORDER BY heatScore DESC, n.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countHotNotes" resultType="int">
+        SELECT COUNT(*) FROM notes WHERE status = 1
+    </select>
+
+    <!-- 优秀作者 -->
+    <select id="getTopAuthors" resultType="com.ruoyi.yike.DTO.TopAuthorDTO">
+        SELECT
+            u.id, u.username, u.nickname, u.avatar, u.school, u.major,
+            COALESCE(n_stats.noteCount, 0) AS noteCount,
+            COALESCE(n_stats.totalViews, 0) AS totalViews,
+            COALESCE(n_stats.totalLikes, 0) AS totalLikes,
+            COALESCE(n_stats.totalFavorites, 0) AS totalFavorites,
+            COALESCE(uf_stats.favoriteCount, 0) AS favoriteCount,
+            COALESCE(c_stats.commentCount, 0) AS commentCount,
+            (COALESCE(n_stats.totalViews, 0) * 1 + COALESCE(n_stats.totalLikes, 0) * 5 + COALESCE(n_stats.totalFavorites, 0) * 3) AS authorScore
+        FROM users u
+                 LEFT JOIN (
+            SELECT user_id,
+                   COUNT(*) AS noteCount,
+                   SUM(views) AS totalViews,
+                   SUM(likes) AS totalLikes,
+                   SUM(favorites) AS totalFavorites
+            FROM notes
+            WHERE status = 1
+            GROUP BY user_id
+        ) n_stats ON u.id = n_stats.user_id
+                 LEFT JOIN (
+            SELECT user_id, COUNT(*) AS favoriteCount
+            FROM user_favorites
+            GROUP BY user_id
+        ) uf_stats ON u.id = uf_stats.user_id
+                 LEFT JOIN (
+            SELECT user_id, COUNT(*) AS commentCount
+            FROM comments
+            WHERE status = 1
+            GROUP BY user_id
+        ) c_stats ON u.id = c_stats.user_id
+        WHERE u.status = 1 AND n_stats.noteCount > 0
+        ORDER BY authorScore DESC, noteCount DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countTopAuthors" resultType="int">
+        SELECT COUNT(DISTINCT u.id)
+        FROM users u
+                 INNER JOIN (
+            SELECT user_id FROM notes WHERE status = 1 GROUP BY user_id HAVING COUNT(*) > 0
+        ) n ON u.id = n.user_id
+        WHERE u.status = 1
+    </select>
+
+    <!-- 本周趋势笔记 -->
+    <select id="getTrendingNotes" resultType="com.ruoyi.yike.DTO.TrendingNoteDTO">
+        SELECT
+            n.id, n.title, n.description,
+            s.name AS subjectName, s.code AS subjectCode,
+            nt.name AS noteTypeName,
+            u.id AS authorId, u.username AS authorName, u.nickname AS authorNickname,
+            n.views, n.likes, n.favorites, n.rating, n.rating_count AS ratingCount,
+            (n.views * 1 + n.likes * 5 + n.favorites * 3 + n.rating * 100) AS heatScore,
+            n.created_at AS createdAt,
+            CONCAT('+', ROUND((n.views * 1 + n.likes * 5 + n.favorites * 3) /
+                              GREATEST(TIMESTAMPDIFF(HOUR, n.created_at, NOW()), 1) * 100, 0), '%') AS growthRate
+        FROM notes n
+                 JOIN users u ON n.user_id = u.id
+                 JOIN subjects s ON n.subject_id = s.id
+                 JOIN note_types nt ON n.note_type_id = nt.id
+        WHERE n.status = 1 AND u.status = 1 AND s.status = 1 AND nt.status = 1
+          AND n.created_at >= #{weekAgo}
+        ORDER BY heatScore DESC, n.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countTrendingNotes" resultType="int">
+        SELECT COUNT(*) FROM notes WHERE status = 1 AND created_at >= #{weekAgo}
+    </select>
+
+    <!-- 按学科热门笔记 -->
+    <select id="getHotNotesBySubject" resultType="com.ruoyi.yike.DTO.HotNoteDTO">
+        SELECT
+            n.id, n.title, n.description,
+            s.name AS subjectName, s.code AS subjectCode,
+            nt.name AS noteTypeName,
+            u.id AS authorId, u.username AS authorName, u.nickname AS authorNickname,
+            n.views, n.likes, n.favorites, n.rating, n.rating_count AS ratingCount,
+            (n.views * 1 + n.likes * 5 + n.favorites * 3 + n.rating * 100) AS heatScore,
+            n.created_at AS createdAt
+        FROM notes n
+                 JOIN users u ON n.user_id = u.id
+                 JOIN subjects s ON n.subject_id = s.id
+                 JOIN note_types nt ON n.note_type_id = nt.id
+        WHERE n.status = 1 AND u.status = 1 AND s.status = 1 AND nt.status = 1
+          AND n.subject_id = #{subjectId}
+        ORDER BY heatScore DESC, n.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countHotNotesBySubject" resultType="int">
+        SELECT COUNT(*) FROM notes WHERE status = 1 AND subject_id = #{subjectId}
+    </select>
+
+    <!-- 最新笔记 -->
+    <select id="getLatestNotes" resultType="com.ruoyi.yike.DTO.HotNoteDTO">
+        SELECT
+            n.id, n.title, n.description,
+            s.name AS subjectName, s.code AS subjectCode,
+            nt.name AS noteTypeName,
+            u.id AS authorId, u.username AS authorName, u.nickname AS authorNickname,
+            n.views, n.likes, n.favorites, n.rating, n.rating_count AS ratingCount,
+            n.created_at AS createdAt
+        FROM notes n
+                 JOIN users u ON n.user_id = u.id
+                 JOIN subjects s ON n.subject_id = s.id
+                 JOIN note_types nt ON n.note_type_id = nt.id
+        WHERE n.status = 1 AND u.status = 1 AND s.status = 1 AND nt.status = 1
+        ORDER BY n.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countLatestNotes" resultType="int">
+        SELECT COUNT(*) FROM notes WHERE status = 1
+    </select>
+
+    <!-- 评分最高笔记 -->
+    <select id="getTopRatedNotes" resultType="com.ruoyi.yike.DTO.HotNoteDTO">
+        SELECT
+            n.id, n.title, n.description,
+            s.name AS subjectName, s.code AS subjectCode,
+            nt.name AS noteTypeName,
+            u.id AS authorId, u.username AS authorName, u.nickname AS authorNickname,
+            n.views, n.likes, n.favorites, n.rating, n.rating_count AS ratingCount,
+            n.created_at AS createdAt
+        FROM notes n
+                 JOIN users u ON n.user_id = u.id
+                 JOIN subjects s ON n.subject_id = s.id
+                 JOIN note_types nt ON n.note_type_id = nt.id
+        WHERE n.status = 1 AND u.status = 1 AND s.status = 1 AND nt.status = 1
+          AND n.rating_count >= 5
+        ORDER BY n.rating DESC, n.rating_count DESC, n.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countTopRatedNotes" resultType="int">
+        SELECT COUNT(*) FROM notes WHERE status = 1 AND rating_count >= 5
+    </select>
+
+</mapper>

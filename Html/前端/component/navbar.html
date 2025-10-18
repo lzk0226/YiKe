@@ -434,6 +434,7 @@
 
         <li><a href="index.html" data-section="home">首页</a></li>
         <li><a href="noteSquare.html" data-section="notes">笔记广场</a></li>
+        <li><a href="ranking.html" data-section="rank">排行榜</a></li>
       </ul>
 
       <button class="mobile-menu-toggle" id="mobile-menu-toggle">
@@ -643,6 +644,7 @@
       detectCurrentPage(pathname) {
         const fileName = pathname.split('/').pop();
         if (fileName === 'noteSquare.html') return 'notes';
+        if (fileName === 'ranking.html') return 'rank';
         if (fileName === 'index.html' || fileName === '' || pathname === '/') return 'home';
         return this.options.currentPage;
       }

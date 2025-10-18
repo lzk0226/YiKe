@@ -35,10 +35,10 @@
       </el-form-item>
       <el-form-item label="创建时间" prop="createdAt">
         <el-date-picker clearable
-          v-model="queryParams.createdAt"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择创建时间">
+                        v-model="queryParams.createdAt"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        placeholder="请选择创建时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -99,7 +99,19 @@
       <el-table-column label="学科名称" align="center" prop="name" />
       <el-table-column label="学科描述" align="center" prop="description" />
       <el-table-column label="排序权重" align="center" prop="sortOrder" />
-      <el-table-column label="状态: 1-启用, 0-禁用" align="center" prop="status" />
+      <el-table-column label="状态" align="center" prop="status">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.status"
+            :active-value="1"
+            :inactive-value="0"
+            active-text="启用"
+            inactive-text="禁用"
+            @change="handleStatusChange(scope.row)"
+            v-hasPermi="['yike:subjects:edit']"
+          ></el-switch>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}') }}</span>
@@ -156,10 +168,10 @@
         </el-form-item>
         <el-form-item label="创建时间" prop="createdAt">
           <el-date-picker clearable
-            v-model="form.createdAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择创建时间">
+                          v-model="form.createdAt"
+                          type="date"
+                          value-format="yyyy-MM-dd"
+                          placeholder="请选择创建时间">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -318,6 +330,19 @@ export default {
       this.download('yike/subjects/export', {
         ...this.queryParams
       }, `subjects_${new Date().getTime()}.xlsx`)
+    },
+
+    /** 状态开关变更 */
+    handleStatusChange(row) {
+      let text = row.status === 1 ? "启用" : "禁用"
+      this.$modal.confirm('确认要"' + text + '""' + row.name + '"学科吗？').then(() => {
+        return updateSubjects(row)
+      }).then(() => {
+        this.$modal.msgSuccess(text + "成功")
+      }).catch(() => {
+        // 如果失败，恢复原状态
+        row.status = row.status === 0 ? 1 : 0
+      })
     }
   }
 }

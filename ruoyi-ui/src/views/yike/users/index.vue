@@ -213,6 +213,12 @@
         <el-form-item label="专业" prop="major">
           <el-input v-model="form.major" placeholder="请输入专业" />
         </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="form.status">
+            <el-radio :label="1">正常</el-radio>
+            <el-radio :label="0">禁用</el-radio>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -295,7 +301,7 @@ export default {
         major: null,
         createdAt: null,
         updatedAt: null,
-        status: null
+        status: 1
       }
       this.resetForm("form")
     },

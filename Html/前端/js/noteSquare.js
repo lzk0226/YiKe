@@ -30,7 +30,7 @@ function loadNavbarComponent() {
       // 初始化导航栏
       initializeNavbar();
 
-      // 导航栏加载完成后，检查登录状态并控制FAB按钮
+      // 导航栏加载完成后,检查登录状态并控制FAB按钮
       setTimeout(() => {
         updateFabButtonVisibility();
       }, 200);
@@ -70,17 +70,17 @@ function updateFabButtonVisibility() {
     const userLoggedIn = !!(accessToken && userStr && isLoggedIn === 'true');
 
     if (userLoggedIn) {
-      // 已登录：显示FAB按钮
+      // 已登录:显示FAB按钮
       fabButton.style.display = 'flex';
       fabButton.style.opacity = '1';
       fabButton.style.visibility = 'visible';
-      console.log('用户已登录，显示发布按钮');
+      console.log('用户已登录,显示发布按钮');
     } else {
-      // 未登录：隐藏FAB按钮
+      // 未登录:隐藏FAB按钮
       fabButton.style.display = 'none';
       fabButton.style.opacity = '0';
       fabButton.style.visibility = 'hidden';
-      console.log('用户未登录，隐藏发布按钮');
+      console.log('用户未登录,隐藏发布按钮');
     }
   } catch (error) {
     console.error('检查登录状态时出错:', error);
@@ -134,7 +134,7 @@ function handleUserAction(action) {
       alert('打开设置页面');
       break;
     case 'logout':
-      if (confirm('确定要退出登录吗？')) {
+      if (confirm('确定要退出登录吗?')) {
         // 清除登录信息
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
@@ -167,7 +167,7 @@ const appState = {
   pageSize: 6,
   sortType: 'latest',
   selectedSubjectId: null,
-  selectedNoteTypeIds: [] // 支持多选
+  selectedNoteTypeId: null // 改为单选,只存储一个ID
 };
 
 // 获取学科分类数据
@@ -187,7 +187,7 @@ async function fetchSubjects() {
         const div = document.createElement('div');
         div.className = 'tag';
         div.textContent = subject.name;
-        div.dataset.id = subject.id; // 使用 id 而不是 code
+        div.dataset.id = subject.id;
         container.appendChild(div);
       });
 
@@ -211,7 +211,7 @@ function bindSubjectTagEvents() {
 
       // 更新全局状态
       appState.selectedSubjectId = this.dataset.id ? parseInt(this.dataset.id) : null;
-      appState.currentPage = 1; // 重置到第一页
+      appState.currentPage = 1;
 
       // 重新加载数据
       renderNotes();
@@ -237,7 +237,7 @@ async function fetchNoteTypes() {
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.checked = true;
+        checkbox.checked = false; // 默认不选中
         checkbox.dataset.id = type.id;
 
         const span = document.createElement('span');
@@ -248,8 +248,8 @@ async function fetchNoteTypes() {
         container.appendChild(label);
       });
 
-      // 初始化选中状态
-      appState.selectedNoteTypeIds = types.map(type => type.id);
+      // 初始化选中状态为null(不选择任何类型)
+      appState.selectedNoteTypeId = null;
       bindNoteTypeEvents();
     } else {
       console.error('获取笔记类型失败:', result.msg);
@@ -259,15 +259,28 @@ async function fetchNoteTypes() {
   }
 }
 
-// 绑定笔记类型事件
+// 绑定笔记类型事件(改为单选模式)
 function bindNoteTypeEvents() {
   const typeCheckboxes = document.querySelectorAll('#noteTypeContainer input[type="checkbox"]');
+
   typeCheckboxes.forEach(cb => {
     cb.addEventListener('change', function () {
-      // 更新全局状态
-      appState.selectedNoteTypeIds = Array.from(typeCheckboxes)
-        .filter(chk => chk.checked)
-        .map(chk => parseInt(chk.dataset.id));
+      const currentId = parseInt(this.dataset.id);
+
+      if (this.checked) {
+        // 如果当前被勾选,取消其他所有复选框
+        typeCheckboxes.forEach(otherCb => {
+          if (otherCb !== this) {
+            otherCb.checked = false;
+          }
+        });
+
+        // 更新全局状态为当前选中的ID
+        appState.selectedNoteTypeId = currentId;
+      } else {
+        // 如果当前被取消勾选,设置为null
+        appState.selectedNoteTypeId = null;
+      }
 
       appState.currentPage = 1; // 重置到第一页
 
@@ -283,7 +296,7 @@ async function loadNoteCardTemplate() {
   return await response.text();
 }
 
-// 获取笔记数据（支持筛选条件）
+// 获取笔记数据(支持筛选条件)
 async function fetchNotes(page = 1, pageSize = 6, sortType = 'latest', subjectId = null, noteTypeId = null) {
   let url = '';
 
@@ -361,8 +374,8 @@ async function renderNotes() {
   const notesGrid = document.getElementById('notesGrid');
   const template = await loadNoteCardTemplate();
 
-  // 如果选择了多个笔记类型，暂时只传递第一个（可以根据需要调整逻辑）
-  const noteTypeId = appState.selectedNoteTypeIds.length === 1 ? appState.selectedNoteTypeIds[0] : null;
+  // 使用单个笔记类型ID
+  const noteTypeId = appState.selectedNoteTypeId;
 
   const { notes, total, pageSize } = await fetchNotes(
     appState.currentPage,
@@ -404,7 +417,7 @@ function renderPagination(total, pageSize) {
   // 上一页
   html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">‹</button>`;
 
-  // 显示页码按钮（简化版本）
+  // 显示页码按钮(简化版本)
   const maxVisiblePages = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
@@ -452,11 +465,11 @@ function renderPagination(total, pageSize) {
   });
 }
 
-// 搜索功能（简化版本，实际应该调用后端搜索接口）
+// 搜索功能(简化版本,实际应该调用后端搜索接口)
 function handleSearch(searchTerm) {
   // 这里应该调用后端搜索接口
   console.log('搜索关键词:', searchTerm);
-  // 暂时保持前端搜索，后续可以改为调用后端搜索接口
+  // 暂时保持前端搜索,后续可以改为调用后端搜索接口
   const noteCards = document.querySelectorAll('.note-card');
   noteCards.forEach(card => {
     const title = card.querySelector('.note-title')?.textContent?.toLowerCase() || '';
@@ -504,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const sortType = sortTypeMap[this.textContent];
       appState.sortType = sortType;
-      appState.currentPage = 1; // 重置到第一页
+      appState.currentPage = 1;
 
       renderNotes();
     });
@@ -519,10 +532,10 @@ document.addEventListener('DOMContentLoaded', function () {
       const isLoggedIn = localStorage.getItem('isLoggedIn');
 
       if (accessToken && isLoggedIn === 'true') {
-        // 已登录，跳转到新建笔记页面
+        // 已登录,跳转到新建笔记页面
         window.location.href = '/component/newNote.html';
       } else {
-        // 未登录，提示用户登录
+        // 未登录,提示用户登录
         alert('请先登录后再发布笔记');
         // 可以跳转到登录页面
         // window.location.href = 'login.html';
@@ -530,14 +543,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // 监听localStorage变化，当登录状态改变时更新FAB按钮
+  // 监听localStorage变化,当登录状态改变时更新FAB按钮
   window.addEventListener('storage', function (e) {
     if (e.key === 'accessToken' || e.key === 'isLoggedIn' || e.key === 'user') {
       updateFabButtonVisibility();
     }
   });
 
-  // 监听页面焦点重新获得（从其他标签页回来时）
+  // 监听页面焦点重新获得(从其他标签页回来时)
   window.addEventListener('focus', function () {
     updateFabButtonVisibility();
   });
