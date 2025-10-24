@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.yike.mapper.UserFollowMapper">
+
+    <resultMap id="UserFollowResult" type="com.ruoyi.yike.domain.UserFollow">
+        <id property="id" column="id" />
+        <result property="followerId" column="follower_id" />
+        <result property="followingId" column="following_id" />
+        <result property="createdAt" column="created_at" />
+    </resultMap>
+
+    <!-- 查询用户关注详情 -->
+    <select id="selectUserFollowById" parameterType="Long" resultMap="UserFollowResult">
+        SELECT id, follower_id, following_id, created_at
+        FROM user_follows
+        WHERE id = #{id}
+    </select>
+
+    <!-- 查询用户关注列表 -->
+    <select id="selectUserFollowList" parameterType="com.ruoyi.yike.domain.UserFollow" resultMap="UserFollowResult">
+        SELECT id, follower_id, following_id, created_at
+        FROM user_follows
+        <where>
+            <if test="followerId != null">AND follower_id = #{followerId}</if>
+            <if test="followingId != null">AND following_id = #{followingId}</if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 新增用户关注 -->
+    <insert id="insertUserFollow" parameterType="com.ruoyi.yike.domain.UserFollow" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_follows (
+            follower_id,
+            following_id
+        ) VALUES (
+                     #{followerId},
+                     #{followingId}
+                 )
+    </insert>
+
+    <!-- 修改用户关注 -->
+    <update id="updateUserFollow" parameterType="com.ruoyi.yike.domain.UserFollow">
+        UPDATE user_follows
+        <set>
+            <if test="followerId != null">follower_id = #{followerId},</if>
+            <if test="followingId != null">following_id = #{followingId},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除用户关注 -->
+    <delete id="deleteUserFollowById" parameterType="Long">
+        DELETE FROM user_follows WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除用户关注 -->
+    <delete id="deleteUserFollowByIds" parameterType="Long[]">
+        DELETE FROM user_follows WHERE id IN
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 检查关注关系是否存在 -->
+    <select id="checkFollowExists" resultType="int">
+        SELECT COUNT(1)
+        FROM user_follows
+        WHERE follower_id = #{followerId} AND following_id = #{followingId}
+    </select>
+
+    <!-- 根据关注者和被关注者删除关注关系 -->
+    <delete id="deleteByFollowerAndFollowing">
+        DELETE FROM user_follows
+        WHERE follower_id = #{followerId} AND following_id = #{followingId}
+    </delete>
+
+    <!-- 统计用户关注数（关注了多少人） -->
+    <select id="countFollowing" parameterType="Long" resultType="int">
+        SELECT COUNT(1)
+        FROM user_follows
+        WHERE follower_id = #{userId}
+    </select>
+
+    <!-- 统计用户粉丝数（被多少人关注） -->
+    <select id="countFollowers" parameterType="Long" resultType="int">
+        SELECT COUNT(1)
+        FROM user_follows
+        WHERE following_id = #{userId}
+    </select>
+
+</mapper>
