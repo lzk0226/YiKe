@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.yike.mapper.UserFollowsMapper">
+    
+    <resultMap type="UserFollows" id="UserFollowsResult">
+        <result property="id"    column="id"    />
+        <result property="followerId"    column="follower_id"    />
+        <result property="followingId"    column="following_id"    />
+        <result property="createdAt"    column="created_at"    />
+    </resultMap>
+
+    <sql id="selectUserFollowsVo">
+        select id, follower_id, following_id, created_at from user_follows
+    </sql>
+
+    <select id="selectUserFollowsList" parameterType="UserFollows" resultMap="UserFollowsResult">
+        <include refid="selectUserFollowsVo"/>
+        <where>  
+            <if test="followerId != null "> and follower_id = #{followerId}</if>
+            <if test="followingId != null "> and following_id = #{followingId}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserFollowsById" parameterType="Long" resultMap="UserFollowsResult">
+        <include refid="selectUserFollowsVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertUserFollows" parameterType="UserFollows" useGeneratedKeys="true" keyProperty="id">
+        insert into user_follows
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="followerId != null">follower_id,</if>
+            <if test="followingId != null">following_id,</if>
+            <if test="createdAt != null">created_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="followerId != null">#{followerId},</if>
+            <if test="followingId != null">#{followingId},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserFollows" parameterType="UserFollows">
+        update user_follows
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="followerId != null">follower_id = #{followerId},</if>
+            <if test="followingId != null">following_id = #{followingId},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUserFollowsById" parameterType="Long">
+        delete from user_follows where id = #{id}
+    </delete>
+
+    <delete id="deleteUserFollowsByIds" parameterType="String">
+        delete from user_follows where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
