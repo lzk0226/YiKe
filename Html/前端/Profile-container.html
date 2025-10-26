@@ -9,22 +9,31 @@
 </head>
 
 <body>
-  <!-- 顶部导航栏 -->
   <div id="navbar-container"></div>
 
   <div class="container">
-    <!-- 左侧个人资料 -->
     <div class="profile-card">
       <h3>个人资料</h3>
       <div class="avatar-wrapper">
         <div class="avatar-container" onclick="document.getElementById('avatarInput').click()">
           <img id="avatarPreview" src="https://via.placeholder.com/80x80/667eea/ffffff?text=U" alt="头像">
-          <div class="avatar-overlay">
-            点击更换
-          </div>
+          <div class="avatar-overlay">点击更换</div>
           <input type="file" id="avatarInput" accept="image/*">
         </div>
       </div>
+
+      <!-- 关注统计 -->
+      <div class="follow-stats">
+        <div class="stat-item" onclick="showFollowingList()">
+          <span class="stat-number" id="followingCount">0</span>
+          <span class="stat-label">关注</span>
+        </div>
+        <div class="stat-item" onclick="showFollowerList()">
+          <span class="stat-number" id="followerCount">0</span>
+          <span class="stat-label">粉丝</span>
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="nickname">昵称</label>
         <input type="text" id="nickname" placeholder="请输入昵称" value="张三" disabled>
@@ -44,15 +53,14 @@
       <button class="btn-submit" id="saveProfileBtn">修改资料</button>
     </div>
 
-    <!-- 右侧内容区域 -->
     <div class="content-area">
-      <!-- 标签页导航 -->
       <div class="tab-navigation">
         <button class="tab-btn active" data-tab="my-notes">我的笔记</button>
         <button class="tab-btn" data-tab="my-favorites">我的收藏</button>
+        <button class="tab-btn" data-tab="my-following">我的关注</button>
+        <button class="tab-btn" data-tab="my-followers">我的粉丝</button>
       </div>
 
-      <!-- 我的笔记标签页 -->
       <div class="tab-content active" id="my-notes">
         <div class="section-header">
           <h2 class="section-title">我的笔记</h2>
@@ -63,12 +71,9 @@
             <button class="sort-btn" data-sort="likes">最多点赞</button>
           </div>
         </div>
-        <div class="notes-grid" id="myNotesGrid">
-          <!-- JS动态渲染笔记 -->
-        </div>
+        <div class="notes-grid" id="myNotesGrid"></div>
       </div>
 
-      <!-- 我的收藏标签页 -->
       <div class="tab-content" id="my-favorites">
         <div class="section-header">
           <h2 class="section-title">我的收藏</h2>
@@ -79,12 +84,25 @@
             <button class="sort-btn" data-sort="likes">最多点赞</button>
           </div>
         </div>
-        <div class="notes-grid" id="favoritesGrid">
-          <!-- JS动态渲染收藏 -->
+        <div class="notes-grid" id="favoritesGrid"></div>
+      </div>
+
+      <div class="tab-content" id="my-following">
+        <div class="section-header">
+          <h2 class="section-title">我的关注</h2>
         </div>
+        <div class="user-list" id="followingList"></div>
+      </div>
+
+      <div class="tab-content" id="my-followers">
+        <div class="section-header">
+          <h2 class="section-title">我的粉丝</h2>
+        </div>
+        <div class="user-list" id="followerList"></div>
       </div>
     </div>
   </div>
+
   <button class="fab" title="快速上传笔记">📝</button>
 
   <script src="js/Profile-container.js"></script>

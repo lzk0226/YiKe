@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户主页 - 忆课</title>
+  <link rel="stylesheet" href="css/User-Profile.css">
+</head>
+
+<body>
+  <!-- 顶部导航栏 -->
+  <div id="navbar-container"></div>
+
+  <div class="container">
+    <!-- 左侧用户信息卡片 -->
+    <div class="profile-card">
+      <div class="avatar-wrapper">
+        <img id="userAvatar" src="https://via.placeholder.com/120x120/667eea/ffffff?text=U" alt="用户头像"
+          class="user-avatar">
+      </div>
+
+      <h2 class="username" id="userName">加载中...</h2>
+      <p class="user-email" id="userEmail">-</p>
+
+      <div class="user-info">
+        <div class="info-item">
+          <span class="info-icon">🏫</span>
+          <span class="info-text" id="userSchool">暂无信息</span>
+        </div>
+        <div class="info-item">
+          <span class="info-icon">📚</span>
+          <span class="info-text" id="userMajor">暂无信息</span>
+        </div>
+      </div>
+
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-number" id="followingCount">0</div>
+          <div class="stat-label">关注</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number" id="followerCount">0</div>
+          <div class="stat-label">粉丝</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number" id="notesCount">0</div>
+          <div class="stat-label">笔记</div>
+        </div>
+      </div>
+
+      <button class="btn-follow" id="followBtn">
+        <span id="followBtnText">关注</span>
+      </button>
+    </div>
+
+    <!-- 右侧笔记列表 -->
+    <div class="content-area">
+      <div class="section-header">
+        <h2 class="section-title">TA的笔记</h2>
+        <div class="sort-options">
+          <button class="sort-btn active" data-sort="latest">最新发布</button>
+          <button class="sort-btn" data-sort="views">最多阅读</button>
+          <button class="sort-btn" data-sort="rating">评分最高</button>
+          <button class="sort-btn" data-sort="likes">最多点赞</button>
+        </div>
+      </div>
+
+      <div class="notes-grid" id="userNotesGrid">
+        <!-- JS动态渲染笔记 -->
+      </div>
+
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-icon">📝</div>
+        <p class="empty-text">该用户还没有发布笔记</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/User-Profile.js"></script>
+</body>
+
+</html>

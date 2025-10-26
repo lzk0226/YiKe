@@ -92,7 +92,7 @@ function updateCommentFormUI() {
         <div class="login-prompt-content">
           <div class="login-icon">🔒</div>
           <h3>登录后即可发表评论</h3>
-          <p>加入我们的学习社区，与其他同学交流讨论</p>
+          <p>加入我们的学习社区,与其他同学交流讨论</p>
           <div class="login-actions">
             <button class="btn btn-primary" onclick="redirectToLogin()">立即登录</button>
             <button class="btn btn-secondary" onclick="redirectToRegister()">免费注册</button>
@@ -132,7 +132,7 @@ function handleTokenExpired() {
   }
 
   updateCommentFormUI();
-  showToast('登录已过期，请重新登录', 'error');
+  showToast('登录已过期,请重新登录', 'error');
 }
 
 // 显示错误页面
@@ -148,7 +148,7 @@ function showError(message) {
   `;
 }
 
-// 获取笔记详情（实际API调用）
+// 获取笔记详情(实际API调用)
 function fetchNoteDetail(noteId) {
   fetch(`http://localhost:8080/user/notes/detail/${noteId}`)
     .then(res => {
@@ -167,6 +167,7 @@ function fetchNoteDetail(noteId) {
           content: d.content,
           description: d.description,
           author: d.author?.nickname || "未知作者",
+          authorId: d.author?.id || d.userId || null,
           authorInitial: getAuthorInitial(d.author),
           authorAvatar: d.author?.avatar || "",
           subjectName: d.subjectName || d.subject?.name || "",
@@ -193,7 +194,7 @@ function fetchNoteDetail(noteId) {
     })
     .catch(err => {
       console.error("获取笔记详情失败:", err);
-      showError("网络错误，请刷新页面重试");
+      showError("网络错误,请刷新页面重试");
     });
 }
 
@@ -201,12 +202,12 @@ function fetchNoteDetail(noteId) {
 function getAuthorInitial(author) {
   if (!author) return "?";
 
-  // 如果有昵称，获取首字母
+  // 如果有昵称,获取首字母
   if (author.nickname) {
     return author.nickname.charAt(0).toUpperCase();
   }
 
-  // 如果有用户名，获取首字母
+  // 如果有用户名,获取首字母
   if (author.username) {
     return author.username.charAt(0).toUpperCase();
   }
@@ -252,6 +253,15 @@ function fetchNoteUserStatus(noteId) {
     });
 }
 
+// 跳转到用户主页
+function viewUserProfile(userId) {
+  if (!userId) {
+    showToast('无法获取用户信息', 'error');
+    return;
+  }
+  window.location.href = `/User-Profile.html?userId=${userId}`;
+}
+
 // 渲染笔记内容
 function loadNote() {
   document.getElementById('noteLoading').style.display = 'none';
@@ -270,11 +280,17 @@ function loadNote() {
     document.getElementById('descriptionText').textContent = currentNote.description;
   }
 
-  // 设置作者信息
-  document.getElementById('authorName').textContent = currentNote.author;
+  // 设置作者信息 - 添加点击事件
+  const authorNameElement = document.getElementById('authorName');
+  authorNameElement.textContent = currentNote.author;
+  authorNameElement.style.cursor = 'pointer';
+  authorNameElement.onclick = () => viewUserProfile(currentNote.authorId);
 
-  // 设置作者头像
+  // 设置作者头像 - 添加点击事件
   const authorAvatar = document.getElementById('authorAvatar');
+  authorAvatar.style.cursor = 'pointer';
+  authorAvatar.onclick = () => viewUserProfile(currentNote.authorId);
+
   if (currentNote.authorAvatar) {
     // 检查是否是base64头像或URL头像
     if (currentNote.authorAvatar.startsWith('data:image/') ||
@@ -285,11 +301,11 @@ function loadNote() {
       authorAvatar.innerHTML = `<img src="${currentNote.authorAvatar}" alt="avatar" class="avatar-img" onerror="this.style.display='none'; this.parentNode.textContent='${currentNote.authorInitial}';" />`;
       authorAvatar.style.background = 'transparent';
     } else {
-      // 如果不是有效的图片URL，显示首字母
+      // 如果不是有效的图片URL,显示首字母
       authorAvatar.textContent = currentNote.authorInitial;
     }
   } else {
-    // 没有头像，显示首字母
+    // 没有头像,显示首字母
     authorAvatar.textContent = currentNote.authorInitial;
   }
 
@@ -412,7 +428,7 @@ function toggleLike() {
     .then(res => {
       if (!res.ok) {
         if (res.status === 401) {
-          throw new Error('登录已过期，请重新登录');
+          throw new Error('登录已过期,请重新登录');
         }
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -444,7 +460,7 @@ function toggleLike() {
       if (err.message.includes('登录已过期') || err.message.includes('401')) {
         handleTokenExpired();
       } else {
-        showToast('网络错误，请稍后重试', 'error');
+        showToast('网络错误,请稍后重试', 'error');
       }
     })
     .finally(() => {
@@ -483,7 +499,7 @@ function toggleFavorite() {
     .then(res => {
       if (!res.ok) {
         if (res.status === 401) {
-          throw new Error('登录已过期，请重新登录');
+          throw new Error('登录已过期,请重新登录');
         }
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -515,7 +531,7 @@ function toggleFavorite() {
       if (err.message.includes('登录已过期') || err.message.includes('401')) {
         handleTokenExpired();
       } else {
-        showToast('网络错误，请稍后重试', 'error');
+        showToast('网络错误,请稍后重试', 'error');
       }
     })
     .finally(() => {
@@ -640,7 +656,7 @@ function renderComments() {
   }
 
   if (comments.length === 0) {
-    commentsList.innerHTML = '<div class="empty-state">暂无评论，快来发表第一条评论吧~</div>';
+    commentsList.innerHTML = '<div class="empty-state">暂无评论,快来发表第一条评论吧~</div>';
     return;
   }
 
@@ -735,7 +751,7 @@ function toggleCommentLike(commentId) {
     })
     .catch(err => {
       console.error('点赞请求失败:', err);
-      showToast('网络错误，请稍后重试', 'error');
+      showToast('网络错误,请稍后重试', 'error');
     });
 }
 
@@ -771,7 +787,7 @@ function submitComment() {
   }
 
   if (!currentNote || !currentNote.noteId) {
-    showToast('无法获取笔记信息，请刷新页面重试', 'error');
+    showToast('无法获取笔记信息,请刷新页面重试', 'error');
     return;
   }
 
@@ -825,7 +841,7 @@ function submitComment() {
         }
 
         loadComments(currentNote.noteId);
-        showToast('评论发表成功！', 'success');
+        showToast('评论发表成功!', 'success');
 
         setTimeout(() => {
           if (commentsSection) {
@@ -839,7 +855,7 @@ function submitComment() {
     })
     .catch(err => {
       console.error('评论请求失败:', err);
-      showToast('网络错误，请稍后重试', 'error');
+      showToast('网络错误,请稍后重试', 'error');
     })
     .finally(() => {
       submitBtn.disabled = false;
@@ -933,7 +949,7 @@ document.addEventListener('keydown', function (e) {
   }
 });
 
-// 工具函数：格式化时间
+// 工具函数:格式化时间
 function formatTime(timeString) {
   if (!timeString) return '刚刚';
 
@@ -957,7 +973,7 @@ function formatTime(timeString) {
   }
 }
 
-// 工具函数：防抖处理
+// 工具函数:防抖处理
 function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {

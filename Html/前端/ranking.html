@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>排行榜 - 忆课</title>
+  <link rel="stylesheet" href="css/ranking.css">
+</head>
+
+<body>
+  <!-- 导航栏容器 -->
+  <div id="navbar-container"></div>
+
+  <div class="container">
+    <!-- 标签页导航 -->
+    <div class="tab-navigation">
+      <button class="tab-btn active" data-tab="hot-notes">🔥 热门笔记</button>
+      <button class="tab-btn" data-tab="top-authors">👑 优秀作者</button>
+      <button class="tab-btn" data-tab="trending">📈 本周趋势</button>
+    </div>
+
+    <!-- 排行榜内容 -->q
+    <div class="ranking-content">
+      <!-- 热门笔记 -->
+      <div class="tab-content active" id="hot-notes">
+        <div class="loading" id="hotNotesLoading">加载中...</div>
+        <div class="ranking-list" id="hotNotesList">
+          <!-- 动态生成 -->
+        </div>
+        <div class="error-message" id="hotNotesError" style="display: none;"></div>
+      </div>
+
+      <!-- 优秀作者 -->
+      <div class="tab-content" id="top-authors">
+        <div class="loading" id="topAuthorsLoading">加载中...</div>
+        <div class="ranking-list" id="topAuthorsList">
+          <!-- 动态生成 -->
+        </div>
+        <div class="error-message" id="topAuthorsError" style="display: none;"></div>
+      </div>
+
+      <!-- 本周趋势 -->
+      <div class="tab-content" id="trending">
+        <div class="loading" id="trendingLoading">加载中...</div>
+        <div class="ranking-list" id="trendingList">
+          <!-- 动态生成 -->
+        </div>
+        <div class="error-message" id="trendingError" style="display: none;"></div>
+      </div>
+    </div>
+
+    <!-- 分页控件 -->
+    <div class="pagination" id="pagination" style="display: none;">
+      <button id="prevPage" class="page-btn">上一页</button>
+      <span id="pageInfo">第 1 页</span>
+      <button id="nextPage" class="page-btn">下一页</button>
+    </div>
+  </div>
+
+  <!-- FAB 按钮 -->
+  <button class="fab" title="快速上传笔记"></button>
+
+  <script src="js/ranking.js"></script>
+</body>
+
+</html>
